@@ -1,5 +1,5 @@
 module EntropyEstimators
 
-# package code goes here
+include("EntropyKnn.jl")
 
 end # module
