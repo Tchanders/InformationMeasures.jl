@@ -23,12 +23,8 @@ base - Int - The base of the logarithm, i.e. the units.
 intens - Float - A multiplier for adding noise.
 """
 function entropyknn(data::Array{Float64,2}, k=3, base=2, intens=1e-10)
-	d = size(data)[1]
-	n = size(data)[2]
-
-	if !(k < n)
-		throw(DomainError())
-	end
+	d, n = size(data)
+	assert(k < n)
 
 	# Add noise to each data point
 	data = data + rand(d, n) * intens
@@ -46,8 +42,7 @@ function entropyknn(data::Array{Float64,2}, k=3, base=2, intens=1e-10)
 		push!(distances, knn(tree, point, k + 1)[2][k + 1])
 	end
 
-	# Substitute distances into the digamma equation
+	# Substitute distances into the equation
 	c = digamma(n) - digamma(k) + d * log(2)
 	(c + d * mean(log(distances))) / log(base)
-
 end

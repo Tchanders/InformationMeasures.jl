@@ -3,7 +3,7 @@ n = 100
 arr = rand(d, n)
 
 # Check DomainError is thrown when !(k < n)
-@test_throws DomainError entropyknn(arr, 100)
+@test_throws AssertionError entropyknn(arr, 100)
 
 # Check no DomainError is thrown when k < n
 @test typeof(entropyknn(arr, 99)) == Float64
