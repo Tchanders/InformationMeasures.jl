@@ -12,6 +12,5 @@ arr = rand(d, n)
 for m in [10 100 1000]
 	arr = rand(d, n) * m
 	@test_approx_eq_eps entropyknn(arr) log2(m) 0.5
-	@test_approx_eq_eps entropyknn(arr, 3, 10) log10(m) 0.5
 	@test_approx_eq_eps entropyknn(arr, 3, e) log(m) 0.5
 end
