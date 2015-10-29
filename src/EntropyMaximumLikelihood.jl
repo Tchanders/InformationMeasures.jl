@@ -6,11 +6,29 @@
 
 export entropymaximumlikelihood
 
-function frequenciesmaximumlikelihood(frequencies)
+"""
+Calculates the maximum likelihood estimate for the true
+probability distribution from the observed frequencies.
+
+Parameters:
+
+frequencies - Array{Float64,1} - The observed bin frequencies.
+"""
+function frequenciesmaximumlikelihood(frequencies::Array{Float64,1})
 	return convert(Array{Float64}, frequencies / sum(frequencies))
 end
 
-function entropymaximumlikelihood(counts, base=2)
+"""
+Calculates the maximum likelihood estimate for the entropy from
+the observed counts.
+
+Parameters:
+
+counts - dxn Array{Float64,2} - The observed counts.
+
+base - Int - The base of the logarithm, i.e. the units.
+"""
+function entropymaximumlikelihood(counts::Array{Float64,2}, base=2)
 	frequencies = frequenciesmaximumlikelihood(discretizecounts(counts))
 	return entropyequation(frequencies, base)
 end
