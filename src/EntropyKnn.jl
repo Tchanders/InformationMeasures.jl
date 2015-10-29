@@ -1,17 +1,20 @@
+# Estimates the entropy of a continuous data set using the
+# algorithm outlined in: Kraskov A, Stögbauer H, Grassberger P.
+# Estimating mutual information. Physical Review E. 2004;
+# 69(6):066138, previously implemented in Python:
+# http://www.isi.edu/~gregv/npeet.html.
+
 export entropyknn
 
 using KDTrees
 
 """
-Estimates the entropy of a continuous data set using the
-algorithm outlined in: Kraskov A, Stögbauer H, Grassberger P.
-Estimating mutual information. Physical Review E. 2004;
-69(6):066138, previously implemented in Python:
-http://www.isi.edu/~gregv/npeet.html.
+Estimates the entropy of a continuous data set using a
+K-nearest neighbour algorithm.
 
 Parameters:
 
-data - dxn Array{Float64,2} - Data array where n is the number
+data - dxn Array{Float64,2} - A data array where n is the number
 of data points and d is the dimensionality of the data. KDTree
 requires an array of this shape.
 
