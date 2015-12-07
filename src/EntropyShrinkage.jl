@@ -4,6 +4,48 @@
 #
 # Shrinkage estimators of entropy, mutual information and related quantities.
 
+export entropyshrinkage
+
+"""
+"""
+function getLambdaShrink(n, normalizedcounts, target)
+
+	# Unbiased estimator of variance of u
+	varu = normalizedcounts .* (1 - normalizedcounts) / (n - 1)
+	msp = sum((normalizedcounts - target).^2) # misspecification ???
+
+	# Estimate shrinkage intensity
+	lambda = msp == 0 ? 1 : sum(varu) / msp
+	
+	# Make lambda be between 0 and 1 inclusive
+	return lambda > 1 ? 1 : (lambda < 0 ? 0 : lambda)
+
+end
+
+"""
+Calculates an estimate for the true probability distribution
+from the observed counts.
+
+Parameters:
+
+counts - Array{Float64,1} - The observed bin frequencies.
+
+lambdaFreqs
+"""
+function frequenciesshrinkage(counts, lambdaFreqs)
+
+	target = 1 / length(counts) # Target is uniform distribution
+	n = sum(counts)
+	normalizedcounts = counts / n
+
+	if lambdaFreqs == false
+		lambdaFreqs = n == 1 || n == 0 ? 1 : getLambdaShrink(n, normalizedcounts, target)
+	end
+
+	return lambdaFreqs * target + (1 - lambdaFreqs) * normalizedcounts
+
+end
+
 """
 Calculates the shrinkage estimate for the entropy from the
 observed counts.
@@ -15,32 +57,8 @@ counts - dxn Array{Float64,2} - The observed counts.
 lambdaFreqs -
 
 base - Int - The base of the logarithm, i.e. the units.
-
-verbose -
 """
-function entropyshrinkage(counts::Array{Float64,2}, lambdaFreqs=false, base=2, verbose=true)
-	frequencies = frequenciesshrinkage(counts, lambdaFreqs, verbose)
-	h = entropyPlugin(f, base)
-end
-
-function freqsShrink(y, lambdaFreqs, verbose)
-
-	target = 1 / length(y) # Target is uniform distribution
-	n = sum(y)
-	u = y / n
-
-	if !lambdaFreqs
-		if n == 1 || n == 0
-			lambdaFreqs = 1
-		else
-			lambdaFreqs = getLambdaShrink(n, u, target, verbose)
-		end
-	else
-		if verbose
-			# println("Specified shrinkage intensity: ", round(lambda, 4), "\n")
-		end
-	end
-
-	uShrink = lambdaFreqs * target + (1 - lambdaFreqs) * u
-
+function entropyshrinkage(counts::Array{Float64,2}, lambdaFreqs=false, base=2)
+	frequencies = frequenciesshrinkage(discretizecounts(counts), lambdaFreqs)
+	return entropyformula(frequencies, base)
 end

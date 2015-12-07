@@ -32,6 +32,6 @@ function discretizecounts(counts::Array{Float64,2})
 	c
 end
 
-function entropyequation(frequencies, base)
+function entropyformula(frequencies, base)
 	return -sum(frequencies .* log(frequencies)) / log(base)
 end

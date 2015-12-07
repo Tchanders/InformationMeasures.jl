@@ -19,5 +19,5 @@ base - Int - The base of the logarithm, i.e. the units.
 function entropymillermadow(counts::Array{Float64,2}, base=2)
 	frequencies = frequenciesmaximumlikelihood(discretizecounts(counts))
 	constant = (countnz(frequencies) - 1) / (2 * length(frequencies))
-	return entropyequation(frequencies, base) + constant
+	return entropyformula(frequencies, base) + constant
 end

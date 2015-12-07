@@ -4,7 +4,15 @@ arr = rand(d, n)
 
 # Check entropy is log_base(b) for uniform distribution with b bins
 b = sqrt(n) # discretizecounts function uses sqrt(n) bins
-@test_approx_eq_eps entropydirichlet(arr, 0) log2(b) 0.5
-@test_approx_eq_eps entropydirichlet(arr, 0, e) log(b) 0.5
+# some choices for a:
+# a = 0          :   empirical estimate
+# a = 1          :   Laplace
+# a = 1/2        :   Jeffreys
+# a = 1/m        :   Schurmann-Grassberger  (m: number of bins)
+# a = sqrt(n)/m  :   minimax
+for a in [0, 1, 0.5, 1/b]
+	@test_approx_eq_eps entropydirichlet(arr, a) log2(b) 0.5
+	@test_approx_eq_eps entropydirichlet(arr, a, e) log(b) 0.5
+end
 
 println("Dirichlet passed")

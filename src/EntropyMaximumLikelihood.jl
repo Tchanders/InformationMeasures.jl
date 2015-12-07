@@ -30,5 +30,5 @@ base - Int - The base of the logarithm, i.e. the units.
 """
 function entropymaximumlikelihood(counts::Array{Float64,2}, base=2)
 	frequencies = frequenciesmaximumlikelihood(discretizecounts(counts))
-	return entropyequation(frequencies, base)
+	return entropyformula(frequencies, base)
 end
