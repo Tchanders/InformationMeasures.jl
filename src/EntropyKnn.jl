@@ -42,7 +42,7 @@ function entropyknn(data::Array{Float64,2}, k=3, base=2, intens=1e-10)
 		# Query the tree for the k nearest neighbours using knn
 		# (requires the data to be reshaped)
 		point = reshape(data[1:d, i:i], d)
-		push!(distances, knn(tree, point, k + 1)[2][k + 1])
+		push!(distances, knn(tree, point, k + 1, true)[2][k + 1])
 	end
 
 	# Substitute distances into the equation
