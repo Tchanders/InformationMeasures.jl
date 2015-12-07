@@ -25,12 +25,12 @@ base - Int - The base of the logarithm, i.e. the units.
 
 intens - Float - A multiplier for adding noise.
 """
-function entropyknn(data::Array{Float64,2}, k=3, base=2, intens=1e-10)
-	d, n = size(data)
+function entropyknn(data::Array{Float64,2}, k=3, base=2, noise=1e-10)
+	dimensions, n = size(data)
 	assert(k < n)
 
 	# Add noise to each data point
-	data = data + rand(d, n) * intens
+	data = data + rand(dimensions, n) * noise
 
 	# Make the KD tree
 	tree = KDTree(data)
@@ -41,11 +41,11 @@ function entropyknn(data::Array{Float64,2}, k=3, base=2, intens=1e-10)
 	for i in 1:n
 		# Query the tree for the k nearest neighbours using knn
 		# (requires the data to be reshaped)
-		point = reshape(data[1:d, i:i], d)
+		point = reshape(data[1:dimensions, i:i], dimensions)
 		push!(distances, knn(tree, point, k + 1, true)[2][k + 1])
 	end
 
 	# Substitute distances into the equation
-	c = digamma(n) - digamma(k) + d * log(2)
-	(c + d * mean(log(distances))) / log(base)
+	constant = digamma(n) - digamma(k) + dimensions * log(2)
+	return (constant + dimensions * mean(log(distances))) / log(base)
 end
