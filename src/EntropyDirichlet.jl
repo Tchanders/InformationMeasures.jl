@@ -20,17 +20,17 @@ export entropydirichlet
 
 """
 Calculates an estimate for the true probability distribution
-from the observed frequencies.
+from the observed counts.
 
 Parameters:
 
-frequencies - Array{Float64,1} - The observed bin frequencies.
+counts - Array{Float64,1} - The observed bin frequencies.
 
 a - Float64 - The Dirichlet prior.
 """
-function frequenciesdirichlet(frequencies::Array{Float64,1}, a::Any)
-	a = fill(a, length(frequencies))
-	return (frequencies + a) / (sum(frequencies) + sum(a))
+function frequenciesdirichlet(counts::Array{Float64,1}, a::Any)
+	a = fill(a, length(counts))
+	return (counts + a) / (sum(counts) + sum(a))
 end
 
 """

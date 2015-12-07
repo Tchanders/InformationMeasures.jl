@@ -6,7 +6,7 @@
 
 export entropyknn
 
-using KDTrees
+using NearestNeighbors
 
 """
 Estimates the entropy of a continuous data set using a

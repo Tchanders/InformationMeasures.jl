@@ -6,3 +6,5 @@ arr = rand(d, n)
 b = sqrt(n) # discretizecounts function uses sqrt(n) bins
 @test_approx_eq_eps entropymaximumlikelihood(arr) log2(b) 0.5
 @test_approx_eq_eps entropymaximumlikelihood(arr, e) log(b) 0.5
+
+println("Maximum likelihood passed")

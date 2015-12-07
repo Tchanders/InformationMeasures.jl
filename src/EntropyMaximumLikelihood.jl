@@ -8,14 +8,14 @@ export entropymaximumlikelihood
 
 """
 Calculates the maximum likelihood estimate for the true
-probability distribution from the observed frequencies.
+probability distribution from the observed counts.
 
 Parameters:
 
-frequencies - Array{Float64,1} - The observed bin frequencies.
+counts - Array{Float64,1} - The observed bin frequencies.
 """
-function frequenciesmaximumlikelihood(frequencies::Array{Float64,1})
-	return convert(Array{Float64}, frequencies / sum(frequencies))
+function frequenciesmaximumlikelihood(counts::Array{Float64,1})
+	return convert(Array{Float64}, counts / sum(counts))
 end
 
 """
