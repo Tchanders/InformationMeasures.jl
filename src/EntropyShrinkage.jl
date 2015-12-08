@@ -4,7 +4,7 @@
 #
 # Shrinkage estimators of entropy, mutual information and related quantities.
 
-export entropyshrinkage
+export getentropyshrinkage
 
 """
 """
@@ -58,7 +58,7 @@ lambdaFreqs -
 
 base - Int - The base of the logarithm, i.e. the units.
 """
-function entropyshrinkage(counts::Array{Float64,2}, base=2, lambdaFreqs=false)
+function getentropyshrinkage(counts::Array{Float64,2}, base=2, lambdaFreqs=false)
 	frequencies = frequenciesshrinkage(discretizecounts(counts), lambdaFreqs)
 	return entropyformula(frequencies, base)
 end

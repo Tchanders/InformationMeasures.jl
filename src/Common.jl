@@ -2,34 +2,34 @@
 
 # Needs improving
 function discretizecounts(counts::Array{Float64,2})
-	x = reshape(counts, length(counts))
-	numBins = round(sqrt(length(x)))
-	sort!(x)
-	min, max = extrema(x)
-	diff = (max - min) / numBins
-	r = Range(min : diff : max)
-	c = zeros(length(r) - 1)
-	for i in 1 : length(c)
-		while length(x) > 0 && x[1] <= r[i + 1]
-			c[i] += 1
-			shift!(x)
+	counts = reshape(counts, length(counts))
+	numberofbins = round(sqrt(length(counts)))
+	sort!(counts)
+	min, max = extrema(counts)
+	binwidth = (max - min) / numberofbins
+	range = Range(min : binwidth : max)
+	frequencies = zeros(length(range) - 1)
+	for i in 1 : length(frequencies)
+		while length(counts) > 0 && counts[1] <= range[i + 1]
+			frequencies[i] += 1
+			shift!(counts)
 		end
 	end
 	# Range sometimes doesn't go up to max. Hack to add an extra bin if so, and
 	# add any leftovers to the last bin:
 	# If there are leftovers...
-	if length(x) > 0
+	if length(counts) > 0
 		# ...if there are the correct number of bins...
-		if length(c) === numBins
+		if length(frequencies) === numberofbins
 			# ...then add the leftovers to the last bin...
-			c[end] += length(x)
+			frequencies[end] += length(counts)
 		# ...but if we are one bin short...
-		elseif length(c) === numBins - 1
+		elseif length(frequencies) === numberofbins - 1
 			# ...add a new bin with the number left over.
-			push!(c, length(x))
+			push!(frequencies, length(counts))
 		end
 	end
-	c
+	return frequencies
 end
 
 function entropyformula(frequencies, base)
