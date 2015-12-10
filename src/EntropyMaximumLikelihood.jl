@@ -4,7 +4,7 @@
 #
 # Empirical estimators of entropy, mutual information and related quantities.
 
-export entropymaximumlikelihood
+export getentropymaximumlikelihood
 
 """
 Calculates the maximum likelihood estimate for the true
@@ -14,7 +14,7 @@ Parameters:
 
 counts - Array{Float64,1} - The observed bin frequencies.
 """
-function frequenciesmaximumlikelihood(counts::Array{Float64,1})
+function getfrequenciesmaximumlikelihood(counts::Array{Float64,1})
 	return convert(Array{Float64}, counts / sum(counts))
 end
 
@@ -28,7 +28,7 @@ counts - dxn Array{Float64,2} - The observed counts.
 
 base - Int - The base of the logarithm, i.e. the units.
 """
-function entropymaximumlikelihood(counts::Array{Float64,2}, base=2)
-	frequencies = frequenciesmaximumlikelihood(discretizecounts(counts))
-	return entropyformula(frequencies, base)
+function getentropymaximumlikelihood(counts::Array{Float64,2}, base=2)
+	frequencies = getfrequenciesmaximumlikelihood(getfrequencies(counts))
+	return applyentropyformula(frequencies, base)
 end

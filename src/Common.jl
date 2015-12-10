@@ -1,7 +1,10 @@
 # The functions common to different estimators
 
 # Needs improving
-function discretizecounts(counts::Array{Float64,2})
+"""
+Gets frequencies from counts, based on root(n) bins
+"""
+function getfrequencies(counts::Array{Float64,2})
 	counts = reshape(counts, length(counts))
 	numberofbins = round(sqrt(length(counts)))
 	sort!(counts)
@@ -32,6 +35,6 @@ function discretizecounts(counts::Array{Float64,2})
 	return frequencies
 end
 
-function entropyformula(frequencies, base)
+function applyentropyformula(frequencies, base)
 	return -sum(frequencies .* log(frequencies)) / log(base)
 end

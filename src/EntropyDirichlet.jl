@@ -16,7 +16,7 @@
 # a = 1/m        :   Schurmann-Grassberger  (m: number of bins)
 # a = sqrt(n)/m  :   minimax
 
-export entropydirichlet
+export getentropydirichlet
 
 """
 Calculates an estimate for the true probability distribution
@@ -28,7 +28,7 @@ counts - Array{Float64,1} - The observed bin frequencies.
 
 a - Float64 - The Dirichlet prior.
 """
-function frequenciesdirichlet(counts::Array{Float64,1}, a::Number)
+function getfrequenciesdirichlet(counts::Array{Float64,1}, a::Number)
 	a = fill(a, length(counts))
 	return (counts + a) / (sum(counts) + sum(a))
 end
@@ -45,7 +45,7 @@ a - Any - The Dirichlet prior.
 
 base - Int - The base of the logarithm, i.e. the units.
 """
-function entropydirichlet(counts::Array{Float64,2}, a::Any, base=2)
-	frequencies = frequenciesdirichlet(discretizecounts(counts), a)
-	return entropyformula(frequencies, base)
+function getentropydirichlet(counts::Array{Float64,2}, a::Any, base=2)
+	frequencies = getfrequenciesdirichlet(getfrequencies(counts), a)
+	return applyentropyformula(frequencies, base)
 end

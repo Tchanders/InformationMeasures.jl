@@ -4,7 +4,7 @@
 # 69(6):066138, previously implemented in Python:
 # http://www.isi.edu/~gregv/npeet.html.
 
-export entropyknn
+export getentropyknn
 
 using NearestNeighbors
 
@@ -25,7 +25,7 @@ base - Int - The base of the logarithm, i.e. the units.
 
 intens - Float - A multiplier for adding noise.
 """
-function entropyknn(data::Array{Float64,2}, k=3, base=2, noise=1e-10)
+function getentropyknn(data::Array{Float64,2}, k=3, base=2, noise=1e-10)
 	dimensions, n = size(data)
 	assert(k < n)
 
