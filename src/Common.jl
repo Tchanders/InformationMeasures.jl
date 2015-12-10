@@ -2,7 +2,7 @@
 
 # Needs improving
 """
-Gets frequencies from counts, based on root(n) bins
+Sorts counts in to frequencies for root(n) bins
 """
 function getfrequencies(counts::Array{Float64,2})
 	counts = reshape(counts, length(counts))
@@ -37,4 +37,32 @@ end
 
 function applyentropyformula(frequencies, base)
 	return -sum(frequencies .* log(frequencies)) / log(base)
+end
+
+##############################
+
+function applymutualinformationformula(freqs2d, base=2)
+# 	freqs2d = freqs2d / sum(freqs2d) # check this
+	freqsX = sum(freqs2d, 2)
+	freqsY = sum(freqs2d, 1)
+	freqsNull = (freqsX * freqsY) # Why not transpose?
+	return kldivergenceformula(freqs2d, freqsNull, base)
+end
+
+function kldivergenceformula(freqs1, freqs2, base=2)
+
+	function zeroOrLess(a)
+		return a <= 0
+	end
+
+	freqs1 = freqs1 / sum(freqs1)
+	freqs2 = freqs2 / sum(freqs2)
+
+	if findfirst(zeroOrLess, freqs2) !== 0
+		println("Warning: vanishing values in argument freqs2") # Read up on this
+	end
+
+	likelihoodratio = [freqs1[i] > 0 ? log(freqs1[i] / freqs2[i]) : 0 for i = 1:length(freqs1)]
+	return sum(freqs1[:] .* likelihoodratio) / log(base)
+
 end

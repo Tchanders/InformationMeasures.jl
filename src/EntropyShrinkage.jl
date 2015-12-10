@@ -7,12 +7,21 @@
 export getentropyshrinkage
 
 """
+Calculates the shrinkage intensity, lambda
+
+Parameters:
+
+n - The total number of observations
+
+counts -
+
+target -
 """
 function getlambda(n, normalizedcounts, target)
 
 	# Unbiased estimator of variance of u
-	varu = normalizedcounts .* (1 - normalizedcounts) / (n - 1)
-	msp = sum((normalizedcounts - target).^2) # misspecification ???
+	varu = counts .* (1 - counts) / (n - 1)
+	msp = sum((counts - target).^2) # misspecification ???
 
 	# Estimate shrinkage intensity
 	lambda = msp == 0 ? 1 : sum(varu) / msp
@@ -30,19 +39,26 @@ Parameters:
 
 counts - Array{Float64,1} - The observed bin frequencies.
 
-lambdaFreqs
+lambda -
 """
-function getfrequenciesshrinkage(counts, lambdaFreqs)
+function getfrequenciesshrinkage(counts::Array{Float64,1})
+
+	target = 1 / length(counts) # Target is uniform distribution
+	n = sum(counts)
+	normalizedcounts = counts / n
+	lambda = n == 1 || n == 0 ? 1 : getlambda(n, normalizedcounts, target)
+
+	return lambda * target + (1 - lambda) * normalizedcounts
+
+end
+
+function getfrequenciesshrinkage(counts::Array{Float64,1}, lambda::Number)
 
 	target = 1 / length(counts) # Target is uniform distribution
 	n = sum(counts)
 	normalizedcounts = counts / n
 
-	if lambdaFreqs == false
-		lambdaFreqs = n == 1 || n == 0 ? 1 : getlambda(n, normalizedcounts, target)
-	end
-
-	return lambdaFreqs * target + (1 - lambdaFreqs) * normalizedcounts
+	return lambda * target + (1 - lambda) * normalizedcounts
 
 end
 
@@ -54,9 +70,9 @@ Parameters:
 
 counts - dxn Array{Float64,2} - The observed counts.
 
-lambdaFreqs -
-
 base - Int - The base of the logarithm, i.e. the units.
+
+lambda -
 """
 function getentropyshrinkage(counts::Array{Float64,2}, base=2, lambdaFreqs=false)
 	frequencies = getfrequenciesshrinkage(getfrequencies(counts), lambdaFreqs)
