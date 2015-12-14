@@ -15,4 +15,4 @@ for a in [0, 1, 0.5, 1/b]
 	@test_approx_eq_eps getentropydirichlet(arr, a, e) log(b) 0.5
 end
 
-println("Dirichlet passed")
+println("Dirichlet entropy passed")

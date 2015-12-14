@@ -35,8 +35,11 @@ function getfrequencies(counts::Array{Float64,2})
 	return frequencies
 end
 
-function applyentropyformula(frequencies, base)
-	return -sum(frequencies .* log(frequencies)) / log(base)
+"""
+Plugs probabilities into the entropy formula
+"""
+function applyentropyformula(probabilities, base)
+	return -sum(probabilities .* log(probabilities)) / log(base)
 end
 
 ##############################

@@ -28,7 +28,7 @@ counts - Array{Float64,1} - The observed bin frequencies.
 
 a - Float64 - The Dirichlet prior.
 """
-function getfrequenciesdirichlet(counts::Array{Float64,1}, a::Number)
+function getprobabilitiesdirichlet(counts::Array{Float64,1}, a::Number)
 	a = fill(a, length(counts))
 	return (counts + a) / (sum(counts) + sum(a))
 end
@@ -46,6 +46,6 @@ a - Any - The Dirichlet prior.
 base - Int - The base of the logarithm, i.e. the units.
 """
 function getentropydirichlet(counts::Array{Float64,2}, a::Any, base=2)
-	frequencies = getfrequenciesdirichlet(getfrequencies(counts), a)
-	return applyentropyformula(frequencies, base)
+	probabilities = getprobabilitiesdirichlet(getfrequencies(counts), a)
+	return applyentropyformula(probabilities, base)
 end

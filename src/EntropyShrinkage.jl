@@ -41,7 +41,7 @@ counts - Array{Float64,1} - The observed bin frequencies.
 
 lambda -
 """
-function getfrequenciesshrinkage(counts::Array{Float64,1})
+function getprobabilitiesshrinkage(counts::Array{Float64,1})
 
 	target = 1 / length(counts) # Target is uniform distribution
 	n = sum(counts)
@@ -51,8 +51,7 @@ function getfrequenciesshrinkage(counts::Array{Float64,1})
 	return lambda * target + (1 - lambda) * normalizedcounts
 
 end
-
-function getfrequenciesshrinkage(counts::Array{Float64,1}, lambda::Number)
+function getprobabilitiesshrinkage(counts::Array{Float64,1}, lambda::Number)
 
 	target = 1 / length(counts) # Target is uniform distribution
 	n = sum(counts)
@@ -75,6 +74,6 @@ base - Int - The base of the logarithm, i.e. the units.
 lambda -
 """
 function getentropyshrinkage(counts::Array{Float64,2}, base=2, lambdaFreqs=false)
-	frequencies = getfrequenciesshrinkage(getfrequencies(counts), lambdaFreqs)
-	return applyentropyformula(frequencies, base)
+	probabilities = getprobabilitiesshrinkage(getfrequencies(counts), lambdaFreqs)
+	return applyentropyformula(probabilities, base)
 end

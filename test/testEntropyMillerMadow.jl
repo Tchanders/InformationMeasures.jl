@@ -7,4 +7,4 @@ b = sqrt(n) # getfrequencies function uses sqrt(n) bins
 @test_approx_eq_eps getentropymillermadow(arr) log2(b) 0.5
 @test_approx_eq_eps getentropymillermadow(arr, e) log(b) 0.5
 
-println("Miller Madow passed")
+println("Miller Madow entropy passed")

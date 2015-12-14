@@ -15,4 +15,4 @@ for m in [10 100 1000]
 	@test_approx_eq_eps getentropyknn(arr, 3, e) log(m) 0.5
 end
 
-println("K-nearest neighbor passed")
+println("K-nearest neighbor entropy passed")
