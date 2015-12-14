@@ -1,9 +1,4 @@
-d = 1
-n = 100
-arr = rand(d, n)
-
 # Check entropy is log_base(b) for uniform distribution with b bins
-b = sqrt(n) # getfrequencies function uses sqrt(n) bins
 # some choices for a:
 # a = 0          :   empirical estimate
 # a = 1          :   Laplace

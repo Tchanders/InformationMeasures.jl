@@ -1,7 +1,3 @@
-d = 1
-n = 100
-arr = rand(d, n)
-
 # Check DomainError is thrown when !(k < n)
 @test_throws AssertionError getentropyknn(arr, 100)
 
