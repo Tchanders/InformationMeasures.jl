@@ -8,37 +8,40 @@ export getentropymaximumlikelihood
 
 """
 Calculates the maximum likelihood estimate for the true
-probability distribution from the observed counts.
+probability distribution from the observed values.
 
 Parameters:
 
-counts - Array{Float64,1} - The observed bin frequencies.
+values - Array{Float64} - The observed values.
 """
-function getprobabilitiesmaximumlikelihood(counts::Array{Float64})
-	return counts / sum(counts)
+function getprobabilitiesmaximumlikelihood(values::Array{Float64})
+	return values / sum(values)
 end
 
 """
-Calculates the maximum likelihood estimate for the entropy from
-the observed counts.
+Calculates the maximum likelihood estimate for the entropy of a
+set of observed values. First the observed values are converted
+to frequencies of discrete bins, then the frequencies are
+converted to probablities, then the probabilities are run
+through the entropy formula.
 
 Parameters:
 
-counts - dxn Array{Float64,2} - The observed counts.
+values - dxn Array{Float64,2} - The observed values, where d is
+the number of dimensions of each value and n is the number of
+values.
 
 base - Int - The base of the logarithm, i.e. the units.
 """
-function getentropymaximumlikelihood(counts::Array{Float64,2}, base=2)
-	probabilities = getprobabilitiesmaximumlikelihood(getfrequencies(counts))
+function getentropymaximumlikelihood(values::Array{Float64,2}, base=2)
+	probabilities = getprobabilitiesmaximumlikelihood(getfrequencies(values))
 	return applyentropyformula(probabilities, base)
 end
 
 """
 """
-function getmutualinformationmaximumlikelihood(counts1::Array{Float64,2}, counts2::Array{Float64,2}, base=2)
+function getmutualinformationmaximumlikelihood(values1::Array{Float64,2}, values2::Array{Float64,2}, base=2)
 	jointfrequencies = getprobabilitiesmaximumlikelihood(
-		makejointfrequencies(getfrequencies(counts1), getfrequencies(counts2))
+		makejointfrequencies(getfrequencies(values1), getfrequencies(values2))
 	)
-	
-
 end

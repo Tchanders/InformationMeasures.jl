@@ -19,33 +19,38 @@
 export getentropydirichlet
 
 """
-Calculates an estimate for the true probability distribution
-from the observed counts.
+Calculates the Dirichlet prior Bayesian estimate for the true
+probability distribution from the observed values.
 
 Parameters:
 
-counts - Array{Float64,1} - The observed bin frequencies.
+values - Array{Float64} - The observed values.
 
 a - Float64 - The Dirichlet prior.
 """
-function getprobabilitiesdirichlet(counts::Array{Float64,1}, a::Number)
-	a = fill(a, length(counts))
-	return (counts + a) / (sum(counts) + sum(a))
+function getprobabilitiesdirichlet(values::Array{Float64}, a::Number)
+	a = fill(a, length(values))
+	return (values + a) / (sum(values) + sum(a))
 end
 
 """
 Calculates the Dirichlet prior Bayesian estimate for the entropy
-from the observed counts.
+of a set of observed values. First the observed values are
+converted to frequencies of discrete bins, then the frequencies
+are converted to probablities using a Dirichlet prior, then the
+probabilities are run through the entropy formula.
 
 Parameters:
 
-counts - dxn Array{Float64,2} - The observed counts.
+values - dxn Array{Float64,2} - The observed values, where d is
+the number of dimensions of each value and n is the number of
+values.
 
 a - Any - The Dirichlet prior.
 
 base - Int - The base of the logarithm, i.e. the units.
 """
-function getentropydirichlet(counts::Array{Float64,2}, a::Any, base=2)
-	probabilities = getprobabilitiesdirichlet(getfrequencies(counts), a)
+function getentropydirichlet(values::Array{Float64,2}, a::Any, base=2)
+	probabilities = getprobabilitiesdirichlet(getfrequencies(values), a)
 	return applyentropyformula(probabilities, base)
 end
