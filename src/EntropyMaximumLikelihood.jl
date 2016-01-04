@@ -8,14 +8,16 @@ export getentropymaximumlikelihood
 
 """
 Calculates the maximum likelihood estimate for the true
-probability distribution from the observed values.
+probability distribution from the bin frequencies of the
+observed values.
 
 Parameters:
 
-values - Array{Float64} - The observed values.
+frequencies - Array{Int,1} - The bin frequencies of the observed
+values.
 """
-function getprobabilitiesmaximumlikelihood(values::Array{Float64})
-	return values / sum(values)
+function getprobabilitiesmaximumlikelihood(frequencies::Array{Int,1})
+	return frequencies / sum(frequencies)
 end
 
 """

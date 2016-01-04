@@ -34,29 +34,29 @@ end
 
 """
 Calculates the shrinkage estimate for the true probability
-distribution from the observed values.
+distribution from the bin frequencies of the observed values.
 
 Parameters:
 
-values - Array{Float64} - The observed values.
+frequencies - Array{Int} - The observed values.
 
 lambda - WIP
 """
-function getprobabilitiesshrinkage(values::Array{Float64,1})
+function getprobabilitiesshrinkage(frequencies::Array{Int,1})
 
-	target = 1 / length(values) # Target is uniform distribution
-	n = sum(values)
-	normalizedvalues = values / n
-	lambda = n == 1 || n == 0 ? 1 : getlambda(n, normalizedvalues, target)
+	target = 1 / length(frequencies) # Target is uniform distribution
+	n = sum(frequencies)
+	normalizedvalues = frequencies / n
+	lambda = n == 1 || n == 0 ? 1 : getlambda(n, normalizedvalues, frequencies)
 
 	return lambda * target + (1 - lambda) * normalizedvalues
 
 end
-function getprobabilitiesshrinkage(values::Array{Float64,1}, lambda::Number)
+function getprobabilitiesshrinkage(frequencies::Array{Int,1}, lambda::Number)
 
-	target = 1 / length(values) # Target is uniform distribution
-	n = sum(values)
-	normalizedcounts = values / n
+	target = 1 / length(frequencies) # Target is uniform distribution
+	n = sum(frequencies)
+	normalizedcounts = frequencies / n
 
 	return lambda * target + (1 - lambda) * normalizedcounts
 

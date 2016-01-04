@@ -20,17 +20,18 @@ export getentropydirichlet
 
 """
 Calculates the Dirichlet prior Bayesian estimate for the true
-probability distribution from the observed values.
+probability distribution from the bin frequencies of the
+observed values.
 
 Parameters:
 
-values - Array{Float64} - The observed values.
+frequencies - Array{Int,1} - The observed values.
 
 a - Float64 - The Dirichlet prior.
 """
-function getprobabilitiesdirichlet(values::Array{Float64}, a::Number)
-	a = fill(a, length(values))
-	return (values + a) / (sum(values) + sum(a))
+function getprobabilitiesdirichlet(frequencies::Array{Int,1}, a::Number)
+	a = fill(a, length(frequencies))
+	return (frequencies + a) / (sum(frequencies) + sum(a))
 end
 
 """
