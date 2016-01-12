@@ -1,8 +1,8 @@
 # Check DomainError is thrown when !(k < n)
-@test_throws AssertionError getentropyknn(arr, 100)
+@test_throws AssertionError getentropyknn(arr, n)
 
 # Check no DomainError is thrown when k < n
-@test typeof(getentropyknn(arr, 99)) == Float64
+@test typeof(getentropyknn(arr, n - 1)) == Float64
 
 # Check entropy is log_base(m) for uniform distribution width m
 for m in [10 100 1000]
