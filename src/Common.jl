@@ -8,7 +8,7 @@ Parameters:
 
 values - Array{Float64,2} - The observed values.
 """
-function getbinids(values::Array{Float64,2}) # Why does this sometimes return NaN?
+function getbinids(values::Array{Float64,2})
 
 	# This is a separate function because might want to offer different methods in the future
 	function getnumberofbins(values)
@@ -60,5 +60,5 @@ end
 Plugs probabilities into the entropy formula
 """
 function applyentropyformula(probabilities, base)
-	return -sum(probabilities .* log(probabilities)) / log(base)
+	return -sum([p == 0 ? 0 : p .* log(p) for p in probabilities]) / log(base)
 end
