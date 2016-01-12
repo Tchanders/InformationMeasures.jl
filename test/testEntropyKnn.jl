@@ -4,7 +4,7 @@
 # Check no DomainError is thrown when k < n
 @test typeof(getentropyknn(arr, 99)) == Float64
 
-# Check entropy is log_base(n) for uniform distribution width n
+# Check entropy is log_base(m) for uniform distribution width m
 for m in [10 100 1000]
 	arr = rand(d, n) * m
 	@test_approx_eq_eps getentropyknn(arr) log2(m) 0.5

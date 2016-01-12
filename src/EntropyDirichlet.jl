@@ -25,12 +25,12 @@ observed values.
 
 Parameters:
 
-frequencies - Array{Int,1} - The observed values.
+frequencies - Array{Int,2} - The observed values.
 
 a - Float64 - The Dirichlet prior.
 """
-function getprobabilitiesdirichlet(frequencies::Array{Int,1}, a::Number)
-	a = fill(a, length(frequencies))
+function getprobabilitiesdirichlet(frequencies::Array{Int,2}, a::Number)
+	a = fill(a, size(frequencies))
 	return (frequencies + a) / (sum(frequencies) + sum(a))
 end
 

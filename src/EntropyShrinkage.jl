@@ -38,11 +38,11 @@ distribution from the bin frequencies of the observed values.
 
 Parameters:
 
-frequencies - Array{Int} - The observed values.
+frequencies - Array{Int,2} - The observed values.
 
 lambda - WIP
 """
-function getprobabilitiesshrinkage(frequencies::Array{Int,1})
+function getprobabilitiesshrinkage(frequencies::Array{Int,2})
 
 	target = 1 / length(frequencies) # Target is uniform distribution
 	n = sum(frequencies)
@@ -52,7 +52,7 @@ function getprobabilitiesshrinkage(frequencies::Array{Int,1})
 	return lambda * target + (1 - lambda) * normalizedvalues
 
 end
-function getprobabilitiesshrinkage(frequencies::Array{Int,1}, lambda::Number)
+function getprobabilitiesshrinkage(frequencies::Array{Int,2}, lambda::Number)
 
 	target = 1 / length(frequencies) # Target is uniform distribution
 	n = sum(frequencies)

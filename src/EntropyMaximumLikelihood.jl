@@ -13,10 +13,10 @@ observed values.
 
 Parameters:
 
-frequencies - Array{Int,1} - The bin frequencies of the observed
+frequencies - Array{Int,2} - The bin frequencies of the observed
 values.
 """
-function getprobabilitiesmaximumlikelihood(frequencies::Array{Int,1})
+function getprobabilitiesmaximumlikelihood(frequencies::Array{Int,2})
 	return frequencies / sum(frequencies)
 end
 
