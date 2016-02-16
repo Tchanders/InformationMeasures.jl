@@ -39,3 +39,7 @@ function getentropymaximumlikelihood(values::Array{Float64,2}, base=2)
 	probabilities = getprobabilitiesmaximumlikelihood(getfrequencies(values))
 	return applyentropyformula(probabilities, base)
 end
+function getentropymaximumlikelihood(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, base=2)
+	jointprobabilities = getprobabilitiesmaximumlikelihood(getjointfrequencies(valuesX, valuesY))
+	return applyentropyformula(jointprobabilities, base)
+end

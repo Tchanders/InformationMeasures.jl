@@ -55,3 +55,7 @@ function getentropydirichlet(values::Array{Float64,2}, a::Any, base=2)
 	probabilities = getprobabilitiesdirichlet(getfrequencies(values), a)
 	return applyentropyformula(probabilities, base)
 end
+function getentropydirichlet(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, a::Any, base=2)
+	jointprobabilities = getprobabilitiesdirichlet(getjointfrequencies(valuesX, valuesY), a)
+	return applyentropyformula(jointprobabilities, base)
+end

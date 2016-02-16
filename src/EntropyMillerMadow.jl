@@ -27,3 +27,8 @@ function getentropymillermadow(values::Array{Float64,2}, base=2)
 	constant = (countnz(probabilities) - 1) / (2 * length(probabilities))
 	return applyentropyformula(probabilities, base) + constant
 end
+function getentropymillermadow(valuesX::Array{Float64,2}, valuesY::Array{Float64,2}, base=2)
+	probabilities = getprobabilitiesmaximumlikelihood(getjointfrequencies(valuesX, valuesY))
+	constant = (countnz(probabilities) - 1) / (2 * length(probabilities))
+	return applyentropyformula(probabilities, base)
+end

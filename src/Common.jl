@@ -54,6 +54,16 @@ function getfrequencies(values::Array{Float64,2})
 	end
 	return frequencies
 end
+function getjointfrequencies(valuesX::Array{Float64,2}, valuesY::Array{Float64,2})
+	n = size(valuesX)[2]
+	binidsX, numberofbinsX = getbinids(valuesX)
+	binidsY, numberofbinsY = getbinids(valuesY)
+	frequencies = zeros(Int, (numberofbinsY, numberofbinsX))
+	for i in 1:n
+		frequencies[binidsY[i], binidsX[i]] += 1
+	end
+	return frequencies
+end
 
 
 """
