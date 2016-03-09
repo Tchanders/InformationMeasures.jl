@@ -4,7 +4,7 @@
 #
 # Shrinkage estimators of entropy, mutual information and related quantities.
 
-export getentropyshrinkage
+export getentropyshrinkage, getprobabilitiesshrinkage
 
 """
 Calculates the shrinkage intensity, lambda

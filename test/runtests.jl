@@ -1,3 +1,5 @@
+# TODO: Add tests for joint frequencies
+
 using EntropyEstimators
 using Base.Test
 

@@ -1,5 +1,7 @@
 # WIP The functions common to different estimators
 
+export getbinids, applyentropyformula
+
 """
 Coverts observed values into bin IDs, for discretization into root(n)
 discrete bins, where n is the number of observed values.
