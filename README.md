@@ -48,11 +48,11 @@ The following keyword arguments can be passed in to each function:
 * "dirichlet"
 * "shrinkage"
 
-**base** (Number)
+**base** (Number) Base of the logarithm, i.e. the units for entropy
 * 2 (default)
 
-**mode** (String)
-* "uniform_width" (default) Method for discretizing
+**mode** (String) Method for discretizing
+* "uniform_width" (default)
 * "uniform_count"
 
 **number_of_bins** (Integer)
