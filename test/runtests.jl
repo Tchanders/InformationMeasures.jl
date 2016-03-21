@@ -1,15 +1,16 @@
-# TODO: Add tests for joint frequencies
-
-using EntropyEstimators
 using Base.Test
 
-d = 1
-n = 100
-arr = rand(d, n)
-b = sqrt(n) # getfrequencies function uses sqrt(n) bins
+include("../src/Discretization.jl")
+include("../src/Estimators.jl")
+include("../src/Formulae.jl")
+include("../src/ExportedFunctions.jl")
 
-include("testEntropyKnn.jl")
-include("testEntropyMaximumLikelihood.jl")
-include("testEntropyMillerMadow.jl")
-include("testEntropyDirichlet.jl")
-include("testEntropyShrinkage.jl")
+arr1 = rand(100)
+arr2 = rand(100)
+arr3 = rand(100)
+
+include("testDiscretization.jl")
+include("testEntropy.jl")
+include("testConditionalEntropy.jl")
+include("testMutualInformation.jl")
+include("testConditionalMutualInformation.jl")
