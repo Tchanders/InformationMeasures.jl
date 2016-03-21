@@ -5,5 +5,5 @@
 # by estimating the probabilities of the 3D distribution, then projecting)
 
 # Test mutual information formula
-@test get_mutual_information(arr1, arr2) == get_entropy(arr1) + get_entropy(arr2) - get_entropy(arr1, arr2)
+@test_approx_eq get_mutual_information(arr1, arr2) get_entropy(arr1) + get_entropy(arr2) - get_entropy(arr1, arr2)
 println("Mutual information formula passed.")
