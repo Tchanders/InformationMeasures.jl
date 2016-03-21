@@ -56,8 +56,8 @@ end
 # 	- base, number
 # 	Optional:
 # 	Keyword:
-function apply_interaction_information_formula(mutual_information_xy, conditional_mutual_information_xy_on_z)
-	return conditional_mutual_information_xy_on_z - mutual_information_xy
+function apply_interaction_information_formula(conditional_mutual_information, mutual_information)
+	return conditional_mutual_information - mutual_information
 end
 
 # Parameters:

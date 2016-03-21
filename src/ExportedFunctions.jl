@@ -244,10 +244,85 @@ function get_conditional_mutual_information(xyz; estimator = "maximum_likelihood
 	return apply_conditional_mutual_information_formula(entropy_xz, entropy_yz, entropy_xyz, entropy_z)
 end
 
-function get_interaction_information()
+# Parameters:
+# 	Normal:
+# 	- first set of values, array of floats (only 1)
+#	- second set of values (only 1)
+#	- values to condition on (only 1)
+# 	- estimator, string
+# 	Optional:
+# 	Keyword:
+# 	- base, number
+# 	- mode, string
+#	- number_of_bins, number
+#	- get_number_of_bins, function
+# 	- lambda = nothing, number - only used if estimator is "shrinkage"
+# 	- prior = 0, number - only used if estimator is "dirichlet"
+function get_interaction_information(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
+	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 0)
+
+	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+
+	return get_interaction_information(frequencies_xyz; estimator = estimator, base = base, lambda = lambda, prior = prior)
+end
+# Parameters:
+#	Normal:
+#	- xyz, array - 3D frequencies or probabilities
+#	Keyword:
+# 	- estimator, string
+# 	- base, number
+#	- probabilities = false, boolean - whether xyz are probabilities
+# 	- lambda = nothing, number - only used if estimator is "shrinkage"
+# 	- prior = 0, number - only used if estimator is "dirichlet"
+function get_interaction_information(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0)
+
+	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
+	probabilities_xy = probabilities_xz = sum(probabilities_xyz, 3)
+
+	conditional_mutual_information = get_conditional_mutual_information(probabilities_xyz, estimator = estimator, base = base, probabilities = true, lambda = lambda, prior = prior)
+	mutual_information = get_mutual_information(probabilities_xy, estimator = estimator, base = base, probabilities = true, lambda = lambda, prior = prior)
+
+	return apply_interaction_information_formula(conditional_mutual_information, mutual_information)
 end
 
-function get_total_correlation()
+# Parameters:
+# 	Normal:
+# 	- first set of values, array of floats (only 1)
+#	- second set of values (only 1)
+#	- values to condition on (only 1)
+# 	- estimator, string
+# 	Optional:
+# 	Keyword:
+# 	- base, number
+# 	- mode, string
+#	- number_of_bins, number
+#	- get_number_of_bins, function
+# 	- lambda = nothing, number - only used if estimator is "shrinkage"
+# 	- prior = 0, number - only used if estimator is "dirichlet"
+#	NB This is only implemented for 3 variables, since:
+#	* it is equivalent to mutual information for 2 variables
+#	* the package currently doesn't handle more than 3 variables (limited by get_frequencies)
+function get_total_correlation(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
+	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0)
+
+	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+
+	return get_total_correlation(frequencies_xyz; estimator = estimator, base = base, lambda = lambda, prior = prior)
+end
+function get_total_correlation(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0)
+
+	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
+	probabilities_xy = sum(probabilities_xyz, 3)
+	probabilities_x = sum(probabilities_xy, 2)
+	probabilities_y = sum(probabilities_xy, 1)
+	probabilities_z = sum(sum(probabilities_xyz, 1), 2)
+
+	entropy_xyz = apply_entropy_formula(probabilities_xyz, base)
+	entropy_x = apply_entropy_formula(probabilities_x, base)
+	entropy_y = apply_entropy_formula(probabilities_y, base)
+	entropy_z = apply_entropy_formula(probabilities_z, base)
+
+	return apply_total_correlation_formula(entropy_x, entropy_y, entropy_z, entropy_xyz)
 end
 
 function get_dual_total_correlation()
