@@ -18,10 +18,11 @@
 # TODO: Documentation using Docile and Lexicon
 
 export discretize_values,
+	get_probabilities,
 	get_entropy,
 	get_conditional_entropy,
 	get_mutual_information,
-	get_conditional_entropy,
+	get_conditional_mutual_information,
 	get_total_correlation,
 	get_dual_total_correlation,
 	get_interaction_information,
@@ -325,14 +326,14 @@ function get_total_correlation(xyz; estimator = "maximum_likelihood", base = 2, 
 	return apply_total_correlation_formula(entropy_x, entropy_y, entropy_z, entropy_xyz)
 end
 
-function get_dual_total_correlation()
-end
-
 function get_partial_information_decomposition()
 	function get_redundancy()
 		function get_specific_information()
 		end
 	end
+end
+
+function get_dual_total_correlation()
 end
 
 function get_delta_i()
