@@ -44,9 +44,14 @@ function discretize_values(values...; mode = "uniform_width", number_of_bins = 0
 		number_of_bins = get_number_of_bins(values...)
 	end
 
-	return get_frequencies(values..., mode, number_of_bins)
+	if length(values) > 3
+		return get_frequencies(mode, number_of_bins, values...)
+	end
+
+	return get_frequencies(mode, number_of_bins, values...)
 end
 
+# TODO: Change order of estimator and frequencies?
 # Parameters:
 # 	Normal:
 # 	- estimator, string
@@ -85,9 +90,12 @@ function get_entropy(values...; estimator = "maximum_likelihood", base = 2, mode
 	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0)
 
 	# If discretized, values should be one array of frequencies
-	# (because 2D frequencies cannot be reconstructed from multiple
-	# 1D frequencies), so values... will be ([f1, f2, f3, ...],)
-	frequencies = discretized ? values[1] : discretize_values(values..., mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+	# (because higher dimensional frequencies cannot be reconstructed
+	# from multiple lower dimensional frequencies), so values... will
+	# be ([f1, f2, f3, ...],)
+	frequencies = discretized ?
+		values[1] :
+		discretize_values(values..., mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
 	probabilities = get_probabilities(estimator, frequencies, lambda, prior)
 	
@@ -326,11 +334,114 @@ function get_total_correlation(xyz; estimator = "maximum_likelihood", base = 2, 
 	return apply_total_correlation_formula(entropy_x, entropy_y, entropy_z, entropy_xyz)
 end
 
-function get_partial_information_decomposition()
-	function get_redundancy()
-		function get_specific_information()
+# TODO: add documentation
+# - all_orientations, boolean - whether or not to calculate pid with each of the three variables as targets
+function get_partial_information_decomposition(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
+	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0, all_orientations = false)
+
+	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+
+	return get_partial_information_decomposition(frequencies_xyz; estimator = estimator, base = base, lambda = lambda, prior = prior, all_orientations = all_orientations)
+end
+
+function get_partial_information_decomposition(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0, all_orientations = false)
+
+	# Warning: these probabilities parameters are confusingly named. Should change to probabilities_target, probabilities_input_1, etc...
+	# target_dimension specifies which dimension the target is
+	function get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, target_dimension)
+
+		function get_specific_information(probabilities_xz_i, probabilities_x, probabilities_z_i) # probs_xz can also mean probs_yz
+			specific_information = (probabilities_xz_i / probabilities_z_i) .* log(base, probabilities_xz_i ./ (probabilities_x * probabilities_z_i))
+			specific_information[!isfinite(specific_information)] = 0
+			return sum(specific_information)
 		end
+
+		minimum_specific_information = []
+
+		for (i, probability_z) in enumerate(probabilities_z)
+			if target_dimension == 3
+				specific_information_x = get_specific_information(probabilities_xz[:, :, i], probabilities_x, probability_z)
+				specific_information_y = get_specific_information(probabilities_yz[:, :, i], probabilities_y, probability_z)
+			elseif target_dimension == 2
+				specific_information_x = get_specific_information(probabilities_xz[:, i, :], probabilities_x, probability_z)
+				specific_information_y = get_specific_information(probabilities_yz[:, i, :], probabilities_y, probability_z)
+			else
+				specific_information_x = get_specific_information(probabilities_xz[i, :, :], probabilities_x, probability_z)
+				specific_information_y = get_specific_information(probabilities_yz[i, :, :], probabilities_y, probability_z)
+			end
+			push!(minimum_specific_information, min(specific_information_x, specific_information_y))
+		end
+
+		return sum(collect(probabilities_z) .* minimum_specific_information)
 	end
+
+	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
+
+	if all_orientations
+		probabilities_xz = sum(probabilities_xyz, 2)
+		probabilities_yz = sum(probabilities_xyz, 1)
+		probabilities_xy = sum(probabilities_xyz, 3)
+		probabilities_x = sum(probabilities_xz, 3)
+		probabilities_y = sum(probabilities_yz, 3)
+		probabilities_z = sum(probabilities_xz, 1)
+
+		redundnacy_xy_z = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
+		redundnacy_xz_y = get_redundancy(probabilities_y, probabilities_x, probabilities_z, probabilities_xy, probabilities_yz, 2)
+		redundnacy_yz_x = get_redundancy(probabilities_x, probabilities_y, probabilities_z, probabilities_xy, probabilities_xz, 1)
+
+		# Hack to allow the mutual information function to work
+		probabilities_xz = reshape(probabilities_xz, (size(probabilities_xz)[1], size(probabilities_xz)[3]))
+		probabilities_yz = reshape(probabilities_yz, (size(probabilities_yz)[2], size(probabilities_yz)[3]))
+		probabilities_xy = reshape(probabilities_xy, (size(probabilities_xy)[1], size(probabilities_xy)[2]))
+
+		mutual_information_xz = get_mutual_information(probabilities_xz)
+		mutual_information_yz = get_mutual_information(probabilities_yz)
+		mutual_information_xy = get_mutual_information(probabilities_xy)
+
+		interaction_information = get_interaction_information(probabilities_xyz)
+
+		pid_by_target = Dict()
+		pid_by_target["z"] = Dict(
+			"redundancy" => redundnacy_xy_z,
+			"unique_1" => mutual_information_xz - redundnacy_xy_z,
+			"unique_2" => mutual_information_yz - redundnacy_xy_z,
+			"synergy" => interaction_information + redundnacy_xy_z
+		)
+		pid_by_target["y"] = Dict(
+			"redundancy" => redundnacy_xz_y,
+			"unique_1" => mutual_information_xy - redundnacy_xz_y,
+			"unique_2" => mutual_information_yz - redundnacy_xz_y,
+			"synergy" => interaction_information + redundnacy_xz_y
+		)
+		pid_by_target["x"] = Dict(
+			"redundancy" => redundnacy_yz_x,
+			"unique_1" => mutual_information_xy - redundnacy_yz_x,
+			"unique_2" => mutual_information_xz - redundnacy_yz_x,
+			"synergy" => interaction_information + redundnacy_yz_x
+		)
+
+		return pid_by_target
+	else
+		probabilities_xz = sum(probabilities_xyz, 2)
+		probabilities_yz = sum(probabilities_xyz, 1)
+		probabilities_x = sum(probabilities_xz, 3)
+		probabilities_y = sum(probabilities_yz, 3)
+		probabilities_z = sum(probabilities_xz, 1)
+
+		# redundancy = get_redundancy	(probabilities_xyz)
+		redundancy = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
+
+		# Hack to allow the mutual infromation function to work
+		probabilities_xz = reshape(probabilities_xz, (size(probabilities_xz)[1], size(probabilities_xz)[3]))
+		probabilities_yz = reshape(probabilities_yz, (size(probabilities_yz)[2], size(probabilities_yz)[3]))
+
+		# Get the other information measures
+		unique_x = get_mutual_information(probabilities_xz) - redundancy
+		unique_y = get_mutual_information(probabilities_yz) - redundancy
+		synergy = get_interaction_information(probabilities_xyz) + redundancy
+	end
+
+	return redundancy, unique_x, unique_y, synergy
 end
 
 function get_dual_total_correlation()
