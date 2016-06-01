@@ -102,7 +102,7 @@ function get_entropy(values...; estimator = "maximum_likelihood", base = 2, mode
 	entropy = apply_entropy_formula(probabilities, base)
 
 	if estimator == "miller_madow"
-		entropy += (countnz(probabilities) - 1) / (2 * length(probabilities))
+		entropy += (countnz(probabilities) - 1) / (2 * length(values[1]))
 	end
 	
 	return entropy
@@ -145,6 +145,7 @@ function get_conditional_entropy(xy; estimator = "maximum_likelihood", base = 2,
 	entropy_xy = apply_entropy_formula(probabilities_xy, base)
 	entropy_y = apply_entropy_formula(probabilities_y, base)
 
+	# TODO: correct this (see get_entropy)
 	if estimator == "miller_madow"
 		entropy_xy += (countnz(probabilities_xy) - 1) / (2 * length(probabilities_xy))
 		entropy_y += (countnz(probabilities_y) - 1) / (2 * length(probabilities_y))
@@ -192,6 +193,7 @@ function get_mutual_information(xy; estimator = "maximum_likelihood", base = 2, 
 	entropy_x = apply_entropy_formula(probabilities_x, base)
 	entropy_y = apply_entropy_formula(probabilities_y, base)
 
+	# TODO: correct this (see get_entropy)
 	if estimator == "miller_madow"
 		entropy_xy += (countnz(probabilities_xy) - 1) / (2 * length(probabilities_xy))
 		entropy_x += (countnz(probabilities_x) - 1) / (2 * length(probabilities_x))
@@ -243,6 +245,7 @@ function get_conditional_mutual_information(xyz; estimator = "maximum_likelihood
 	entropy_yz = apply_entropy_formula(probabilities_yz, base)
 	entropy_z = apply_entropy_formula(probabilities_z, base)
 
+	# TODO: correct this (see get_entropy)
 	if estimator == "miller_madow"
 		entropy_xyz += (countnz(probabilities_xyz) - 1) / (2 * length(probabilities_xyz))
 		entropy_xz += (countnz(probabilities_xz) - 1) / (2 * length(probabilities_xz))
