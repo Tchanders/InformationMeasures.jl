@@ -15,8 +15,6 @@ export apply_entropy_formula, apply_conditional_entropy_formula, apply_mutual_in
 # 	Optional:
 # 	Keyword:
 function apply_entropy_formula(probabilities, base)
-	# In tests filtering first was faster than summing p == 0 ? 0 : p * log(p),
-	# but using isnan was quicker than filtering
 	probs = probabilities .* log(base, probabilities)
 	probs[isnan(probs)] = 0
 	return -sum(probs)

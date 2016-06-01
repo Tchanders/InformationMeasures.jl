@@ -335,6 +335,8 @@ function get_total_correlation(xyz; estimator = "maximum_likelihood", base = 2, 
 end
 
 # TODO: add documentation
+# TODO: Add Miller-Madow correction
+# TODO: Refactor so this always returns the same type
 # - all_orientations, boolean - whether or not to calculate pid with each of the three variables as targets
 function get_partial_information_decomposition(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
 	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0, all_orientations = false)
@@ -356,7 +358,8 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 			return sum(specific_information)
 		end
 
-		minimum_specific_information = []
+		number_of_z_states = length(probabilities_z)
+		minimum_specific_information = zeros(number_of_z_states)
 
 		for (i, probability_z) in enumerate(probabilities_z)
 			if target_dimension == 3
@@ -369,7 +372,7 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 				specific_information_x = get_specific_information(probabilities_xz[i, :, :], probabilities_x, probability_z)
 				specific_information_y = get_specific_information(probabilities_yz[i, :, :], probabilities_y, probability_z)
 			end
-			push!(minimum_specific_information, min(specific_information_x, specific_information_y))
+			minimum_specific_information[i] += min(specific_information_x, specific_information_y)
 		end
 
 		return sum(collect(probabilities_z) .* minimum_specific_information)
@@ -377,28 +380,29 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
 
-	if all_orientations
-		probabilities_xz = sum(probabilities_xyz, 2)
-		probabilities_yz = sum(probabilities_xyz, 1)
-		probabilities_xy = sum(probabilities_xyz, 3)
-		probabilities_x = sum(probabilities_xz, 3)
-		probabilities_y = sum(probabilities_yz, 3)
-		probabilities_z = sum(probabilities_xz, 1)
+	probabilities_xz = sum(probabilities_xyz, 2)
+	probabilities_yz = sum(probabilities_xyz, 1)
+	probabilities_xy = sum(probabilities_xyz, 3)
+	probabilities_x = sum(probabilities_xz, 3)
+	probabilities_y = sum(probabilities_yz, 3)
+	probabilities_z = sum(probabilities_xz, 1)
 
+	entropy_x = apply_entropy_formula(probabilities_x, base)
+	entropy_y = apply_entropy_formula(probabilities_y, base)
+	entropy_z = apply_entropy_formula(probabilities_z, base)
+	entropy_xy = apply_entropy_formula(probabilities_xy, base)
+	entropy_xz = apply_entropy_formula(probabilities_xz, base)
+	entropy_yz = apply_entropy_formula(probabilities_yz, base)
+	entropy_xyz = apply_entropy_formula(probabilities_xyz, base)
+	mutual_information_xy = apply_mutual_information_formula(entropy_x, entropy_y, entropy_xy)
+	mutual_information_xz = apply_mutual_information_formula(entropy_x, entropy_z, entropy_xz)
+	mutual_information_yz = apply_mutual_information_formula(entropy_y, entropy_z, entropy_yz)
+	interaction_information = apply_interaction_information_formula(apply_conditional_mutual_information_formula(entropy_xz, entropy_yz, entropy_xyz, entropy_z), mutual_information_xy)
+
+	if all_orientations
 		redundnacy_xy_z = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
 		redundnacy_xz_y = get_redundancy(probabilities_y, probabilities_x, probabilities_z, probabilities_xy, probabilities_yz, 2)
 		redundnacy_yz_x = get_redundancy(probabilities_x, probabilities_y, probabilities_z, probabilities_xy, probabilities_xz, 1)
-
-		# Hack to allow the mutual information function to work
-		probabilities_xz = reshape(probabilities_xz, (size(probabilities_xz)[1], size(probabilities_xz)[3]))
-		probabilities_yz = reshape(probabilities_yz, (size(probabilities_yz)[2], size(probabilities_yz)[3]))
-		probabilities_xy = reshape(probabilities_xy, (size(probabilities_xy)[1], size(probabilities_xy)[2]))
-
-		mutual_information_xz = get_mutual_information(probabilities_xz)
-		mutual_information_yz = get_mutual_information(probabilities_yz)
-		mutual_information_xy = get_mutual_information(probabilities_xy)
-
-		interaction_information = get_interaction_information(probabilities_xyz)
 
 		pid_by_target = Dict()
 		pid_by_target["z"] = Dict(
@@ -420,26 +424,26 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 			"synergy" => interaction_information + redundnacy_yz_x
 		)
 
+		# Rounding errors may lead to slightly negative results
+		for orientation in ["x", "y", "z"]
+			for measure in ["redundancy", "unique_1", "unique_2", "synergy"]
+				pid_by_target[orientation][measure] = pid_by_target[orientation][measure] < 0 ? 0 : pid_by_target[orientation][measure]
+			end
+		end
+
 		return pid_by_target
 	else
-		probabilities_xz = sum(probabilities_xyz, 2)
-		probabilities_yz = sum(probabilities_xyz, 1)
-		probabilities_x = sum(probabilities_xz, 3)
-		probabilities_y = sum(probabilities_yz, 3)
-		probabilities_z = sum(probabilities_xz, 1)
-
-		# redundancy = get_redundancy	(probabilities_xyz)
 		redundancy = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
 
-		# Hack to allow the mutual infromation function to work
-		probabilities_xz = reshape(probabilities_xz, (size(probabilities_xz)[1], size(probabilities_xz)[3]))
-		probabilities_yz = reshape(probabilities_yz, (size(probabilities_yz)[2], size(probabilities_yz)[3]))
-
-		# Get the other information measures
-		unique_x = get_mutual_information(probabilities_xz) - redundancy
-		unique_y = get_mutual_information(probabilities_yz) - redundancy
-		synergy = get_interaction_information(probabilities_xyz) + redundancy
+		unique_x = mutual_information_xz - redundancy
+		unique_y = mutual_information_yz - redundancy
+		synergy = interaction_information + redundancy
 	end
+
+	# Rounding errors may lead to slightly negative results
+	unique_x = unique_x > 0 ? unique_x : 0
+	unique_y = unique_y > 0 ? unique_y : 0
+	synergy = synergy > 0 ? synergy : 0
 
 	return redundancy, unique_x, unique_y, synergy
 end
