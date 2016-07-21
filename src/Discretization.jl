@@ -10,16 +10,16 @@ export get_bin_ids!, get_frequencies_from_bin_ids
 # Parameters:
 # 	Normal:
 #	Varargs:
-# 	- values, arrays of floats (could be 1, 2 or 3)
+# 	- values_x, arrays of floats (could be 1, 2 or 3)
 # 	Optional:
 # 	Keyword:
-function get_root_n(values...)
-	return round(Int, sqrt(size(values[1])[1]))
+function get_root_n(values_x...)
+	return round(Int, sqrt(size(values_x[1])[1]))
 end
 
 # Parameters:
 # 	Normal:
-# 	- values, arrays of floats (could be 1, 2 or 3)
+# 	- values_x, arrays of floats (could be 1, 2 or 3)
 # 	- mode, string
 #	- number_of_bins, number
 # 	Optional:
@@ -62,15 +62,15 @@ function get_frequencies(mode, number_of_bins, values_x, values_y, values_z)
 	return frequencies
 end
 # TODO: sort out the ordering of the parameters
-function get_frequencies(mode, number_of_bins, values...)
+function get_frequencies(mode, number_of_bins, values_x...)
 	# n is the number of data points
-	n = size(values[1])[1]
+	n = size(values_x[1])[1]
 	# d is the number of dimensions
-	d = length(values)
+	d = length(values_x)
 	bin_ids = Array(Array{Int}, d)
 	all_number_of_bins = Array(Int, d)
 	for i in 1:d
-		current_values = values[i]
+		current_values = values_x[i]
 		bin_ids[i] = Array(Int, size(current_values))
 		all_number_of_bins[i] = get_bin_ids!(current_values, mode, number_of_bins, bin_ids[i])
 	end
@@ -102,45 +102,45 @@ end
 
 # Parameters:
 # 	Normal:
-# 	- values, arrays of floats (coule be 1, 2 or 3)
+# 	- values_x, arrays of floats (coule be 1, 2 or 3)
 # 	- mode, number
 #	- number_of_bins, integer
 #	- bin_ids, 1-dimensional array of bin ids for each value
 # 	Optional:
 # 	Keyword:
 # function get_bin_ids(values, mode, number_of_bins)
-function get_bin_ids!(values, mode, number_of_bins, bin_ids)
-	min, max = extrema(values)
+function get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
+	min, max = extrema(values_x)
 	if min == max
 		# If values are all the same, assign them all to bin 1
 		number_of_bins = 1
 		bin_ids[1:end] = 1
 	elseif mode == "uniform_width"
-		bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values)), values)
+		bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values_x)), values_x)
 	elseif mode == "binarize"
 		number_of_bins = 2
-		bin_ids[1:end] = map(v -> v == 0 ? 1 : 2, values)
+		bin_ids[1:end] = map(v -> v == 0 ? 1 : 2, values_x)
 	elseif mode == "uniform_count"
 		try
-			bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformCount(number_of_bins), reshape(values, length(values)))), values)
+			bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformCount(number_of_bins), reshape(values_x, length(values_x)))), values_x)
 		catch
-			bin_ids += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values)), values)
+			bin_ids += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values_x)), values_x)
 			println("Uniform count failed, fell back to uniform width")
 		end
 	elseif mode == "bayesian_blocks"
 		try
 			# The commented line is for a future Julia implementation of Bayesian blocks
-			# edges = sort(unique(bayesianBlocks(reshape(values, length(values)))))
-			edges = de.bayesian_blocks(reshape(values, length(values)))
-			bin_ids[1:end] = encode(LinearDiscretizer(edges), values)
+			# edges = sort(unique(bayesianBlocks(reshape(values_x, length(values_x)))))
+			edges = de.bayesian_blocks(reshape(values_x, length(values_x)))
+			bin_ids[1:end] = encode(LinearDiscretizer(edges), values_x)
 			number_of_bins = length(edges) - 1
 		catch
-			bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values)), values)
+			bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values_x)), values_x)
 			println("Bayesian blocks failed, fell back to uniform width")
 		end
 	else
 		println("Mode doesn't exist, fell back to uniform width")
-		bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values)), values)
+		bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values_x)), values_x)
 	end
 
 	return number_of_bins

@@ -32,23 +32,23 @@ export discretize_values,
 # Parameters:
 # 	Normal:
 #	Varargs:
-# 	- values, arrays of floats (could be 1, 2 or 3 - limited by get_frequencies)
+# 	- values_x, arrays of floats (could be 1, 2 or 3 - limited by get_frequencies)
 # 	Optional:
 # 	Keyword:
 # 	- mode, string
 #	- number_of_bins = 0, number - WARNING: This will get overridden by bayesian_blocks
 #	- get_number_of_bins = get_root_n, function - will only be called if number_of_bins is 0
-function discretize_values(values...; mode = "uniform_width", number_of_bins = 0, get_number_of_bins = get_root_n)
+function discretize_values(values_x...; mode = "uniform_width", number_of_bins = 0, get_number_of_bins = get_root_n)
 
 	if number_of_bins == 0
-		number_of_bins = get_number_of_bins(values...)
+		number_of_bins = get_number_of_bins(values_x...)
 	end
 
-	if length(values) > 3
-		return get_frequencies(mode, number_of_bins, values...)
+	if length(values_x) > 3
+		return get_frequencies(mode, number_of_bins, values_x...)
 	end
 
-	return get_frequencies(mode, number_of_bins, values...)
+	return get_frequencies(mode, number_of_bins, values_x...)
 end
 
 # TODO: Change order of estimator and frequencies?
@@ -75,7 +75,7 @@ end
 # Parameters:
 # 	Normal:
 #	Varargs:
-# 	- values, arrays of floats (could be 1, 2 or 3)
+# 	- values_x, arrays of floats (could be 1, 2 or 3)
 # 	Optional:
 # 	Keyword:
 # 	- estimator, string
@@ -86,23 +86,23 @@ end
 #	- discretized, boolean
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
 # 	- prior = 0, number - only used if estimator is "dirichlet"
-function get_entropy(values...; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
+function get_entropy(values_x...; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
 	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0)
 
-	# If discretized, values should be one array of frequencies
+	# If discretized, values_x should be one array of frequencies
 	# (because higher dimensional frequencies cannot be reconstructed
-	# from multiple lower dimensional frequencies), so values... will
+	# from multiple lower dimensional frequencies), so values_x... will
 	# be ([f1, f2, f3, ...],)
 	frequencies = discretized ?
-		values[1] :
-		discretize_values(values..., mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+		values_x[1] :
+		discretize_values(values_x..., mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
 	probabilities = get_probabilities(estimator, frequencies, lambda, prior)
 	
 	entropy = apply_entropy_formula(probabilities, base)
 
 	if estimator == "miller_madow"
-		entropy += (countnz(probabilities) - 1) / (2 * length(values[1]))
+		entropy += (countnz(probabilities) - 1) / (2 * length(values_x[1]))
 	end
 	
 	return entropy
