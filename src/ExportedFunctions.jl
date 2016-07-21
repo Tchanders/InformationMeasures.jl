@@ -342,43 +342,43 @@ end
 # TODO: Refactor so this always returns the same type
 # - all_orientations, boolean - whether or not to calculate pid with each of the three variables as targets
 function get_partial_information_decomposition(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
-	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0, all_orientations = false)
+	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0, all_orientations = false, include_unique = true, include_synergy = true)
 
 	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
-	return get_partial_information_decomposition(frequencies_xyz; estimator = estimator, base = base, lambda = lambda, prior = prior, all_orientations = all_orientations)
+	return get_partial_information_decomposition(frequencies_xyz; estimator = estimator, base = base, lambda = lambda, prior = prior, all_orientations = all_orientations,
+		include_unique = include_unique, include_synergy = include_synergy)
 end
 
-function get_partial_information_decomposition(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0, all_orientations = false)
+function get_partial_information_decomposition(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0, all_orientations = false,
+	include_unique = true, include_synergy = true)
 
-	# Warning: these probabilities parameters are confusingly named. Should change to probabilities_target, probabilities_input_1, etc...
-	# target_dimension specifies which dimension the target is
-	function get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, target_dimension)
+	function get_redundancy(probabilities_target, probabilities_source_1, probabilities_source_2, probabilities_source_1_target, probabilities_source_2_target, target_dimension)
 
-		function get_specific_information(probabilities_xz_i, probabilities_x, probabilities_z_i) # probs_xz can also mean probs_yz
-			specific_information = (probabilities_xz_i / probabilities_z_i) .* log(base, probabilities_xz_i ./ (probabilities_x * probabilities_z_i))
+		function get_specific_information(probabilities_source_target_i, probabilities_source, probabilities_target_i)
+			specific_information = (probabilities_source_target_i / probabilities_target_i) .* log(base, probabilities_source_target_i ./ (probabilities_source * probabilities_target_i))
 			specific_information[!isfinite(specific_information)] = 0
 			return sum(specific_information)
 		end
 
-		number_of_z_states = length(probabilities_z)
-		minimum_specific_information = zeros(number_of_z_states)
+		number_of_target_states = length(probabilities_target)
+		minimum_specific_information = zeros(number_of_target_states)
 
-		for (i, probability_z) in enumerate(probabilities_z)
+		for (i, probability_target) in enumerate(probabilities_target)
 			if target_dimension == 3
-				specific_information_x = get_specific_information(probabilities_xz[:, :, i], probabilities_x, probability_z)
-				specific_information_y = get_specific_information(probabilities_yz[:, :, i], probabilities_y, probability_z)
+				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, :, i], probabilities_source_1, probability_target)
+				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, :, i], probabilities_source_2, probability_target)
 			elseif target_dimension == 2
-				specific_information_x = get_specific_information(probabilities_xz[:, i, :], probabilities_x, probability_z)
-				specific_information_y = get_specific_information(probabilities_yz[:, i, :], probabilities_y, probability_z)
+				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, i, :], probabilities_source_1, probability_target)
+				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, i, :], probabilities_source_2, probability_target)
 			else
-				specific_information_x = get_specific_information(probabilities_xz[i, :, :], probabilities_x, probability_z)
-				specific_information_y = get_specific_information(probabilities_yz[i, :, :], probabilities_y, probability_z)
+				specific_information_source_1 = get_specific_information(probabilities_source_1_target[i, :, :], probabilities_source_1, probability_target)
+				specific_information_source_2 = get_specific_information(probabilities_source_2_target[i, :, :], probabilities_source_2, probability_target)
 			end
-			minimum_specific_information[i] += min(specific_information_x, specific_information_y)
+			minimum_specific_information[i] += min(specific_information_source_1, specific_information_source_2)
 		end
 
-		return sum(collect(probabilities_z) .* minimum_specific_information)
+		return sum(collect(probabilities_target) .* minimum_specific_information)
 	end
 
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
@@ -390,65 +390,112 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 	probabilities_y = sum(probabilities_yz, 3)
 	probabilities_z = sum(probabilities_xz, 1)
 
-	entropy_x = apply_entropy_formula(probabilities_x, base)
-	entropy_y = apply_entropy_formula(probabilities_y, base)
-	entropy_z = apply_entropy_formula(probabilities_z, base)
-	entropy_xy = apply_entropy_formula(probabilities_xy, base)
-	entropy_xz = apply_entropy_formula(probabilities_xz, base)
-	entropy_yz = apply_entropy_formula(probabilities_yz, base)
-	entropy_xyz = apply_entropy_formula(probabilities_xyz, base)
-	mutual_information_xy = apply_mutual_information_formula(entropy_x, entropy_y, entropy_xy)
-	mutual_information_xz = apply_mutual_information_formula(entropy_x, entropy_z, entropy_xz)
-	mutual_information_yz = apply_mutual_information_formula(entropy_y, entropy_z, entropy_yz)
-	interaction_information = apply_interaction_information_formula(apply_conditional_mutual_information_formula(entropy_xz, entropy_yz, entropy_xyz, entropy_z), mutual_information_xy)
+	# Needed for unique information and synergy
+	if include_unique || include_synergy
+		entropy_x = apply_entropy_formula(probabilities_x, base)
+		entropy_y = apply_entropy_formula(probabilities_y, base)
+		entropy_z = apply_entropy_formula(probabilities_z, base)
+		entropy_xy = apply_entropy_formula(probabilities_xy, base)
+		entropy_xz = apply_entropy_formula(probabilities_xz, base)
+		entropy_yz = apply_entropy_formula(probabilities_yz, base)
+		mutual_information_xy = apply_mutual_information_formula(entropy_x, entropy_y, entropy_xy)
+	end
+
+	# Needed for unique information only
+	if include_unique
+		mutual_information_xz = apply_mutual_information_formula(entropy_x, entropy_z, entropy_xz)
+		mutual_information_yz = apply_mutual_information_formula(entropy_y, entropy_z, entropy_yz)
+	end
+
+	# Needed for synergy only
+	if include_synergy
+		entropy_xyz = apply_entropy_formula(probabilities_xyz, base)
+		interaction_information = apply_interaction_information_formula(
+			apply_conditional_mutual_information_formula(entropy_xz, entropy_yz, entropy_xyz, entropy_z), mutual_information_xy
+		)
+	end
+
+	pid = Dict()
 
 	if all_orientations
 		redundnacy_xy_z = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
 		redundnacy_xz_y = get_redundancy(probabilities_y, probabilities_x, probabilities_z, probabilities_xy, probabilities_yz, 2)
 		redundnacy_yz_x = get_redundancy(probabilities_x, probabilities_y, probabilities_z, probabilities_xy, probabilities_xz, 1)
 
-		pid_by_target = Dict()
-		pid_by_target["z"] = Dict(
-			"redundancy" => redundnacy_xy_z,
-			"unique_1" => mutual_information_xz - redundnacy_xy_z,
-			"unique_2" => mutual_information_yz - redundnacy_xy_z,
-			"synergy" => interaction_information + redundnacy_xy_z
+		pid["z"] = Dict(
+			"redundancy" => redundnacy_xy_z
 		)
-		pid_by_target["y"] = Dict(
-			"redundancy" => redundnacy_xz_y,
-			"unique_1" => mutual_information_xy - redundnacy_xz_y,
-			"unique_2" => mutual_information_yz - redundnacy_xz_y,
-			"synergy" => interaction_information + redundnacy_xz_y
+		pid["y"] = Dict(
+			"redundancy" => redundnacy_xz_y
 		)
-		pid_by_target["x"] = Dict(
-			"redundancy" => redundnacy_yz_x,
-			"unique_1" => mutual_information_xy - redundnacy_yz_x,
-			"unique_2" => mutual_information_xz - redundnacy_yz_x,
-			"synergy" => interaction_information + redundnacy_yz_x
+		pid["x"] = Dict(
+			"redundancy" => redundnacy_yz_x
 		)
+
+		if include_unique
+			pid["z"]["unique_1"] = mutual_information_xz - redundnacy_xy_z
+			pid["z"]["unique_2"] = mutual_information_yz - redundnacy_xy_z
+			pid["y"]["unique_1"] = mutual_information_xy - redundnacy_xz_y
+			pid["y"]["unique_2"] = mutual_information_yz - redundnacy_xz_y
+			pid["x"]["unique_1"] = mutual_information_xy - redundnacy_yz_x
+			pid["x"]["unique_2"] = mutual_information_xz - redundnacy_yz_x
+		end
+
+		if include_synergy
+			pid["z"]["synergy"] = interaction_information + redundnacy_xy_z
+			pid["y"]["synergy"] = interaction_information + redundnacy_xz_y
+			pid["x"]["synergy"] = interaction_information + redundnacy_yz_x
+		end
+		
+
+		# pid["z"] = Dict(
+		# 	"redundancy" => redundnacy_xy_z,
+		# 	"unique_1" => mutual_information_xz - redundnacy_xy_z,
+		# 	"unique_2" => mutual_information_yz - redundnacy_xy_z,
+		# 	"synergy" => interaction_information + redundnacy_xy_z
+		# )
+		# pid["y"] = Dict(
+		# 	"redundancy" => redundnacy_xz_y,
+		# 	"unique_1" => mutual_information_xy - redundnacy_xz_y,
+		# 	"unique_2" => mutual_information_yz - redundnacy_xz_y,
+		# 	"synergy" => interaction_information + redundnacy_xz_y
+		# )
+		# pid["x"] = Dict(
+		# 	"redundancy" => redundnacy_yz_x,
+		# 	"unique_1" => mutual_information_xy - redundnacy_yz_x,
+		# 	"unique_2" => mutual_information_xz - redundnacy_yz_x,
+		# 	"synergy" => interaction_information + redundnacy_yz_x
+		# )
 
 		# Rounding errors may lead to slightly negative results
 		for orientation in ["x", "y", "z"]
 			for measure in ["redundancy", "unique_1", "unique_2", "synergy"]
-				pid_by_target[orientation][measure] = pid_by_target[orientation][measure] < 0 ? 0 : pid_by_target[orientation][measure]
+				if haskey(pid[orientation], measure)
+					pid[orientation][measure] = pid[orientation][measure] < 0 ? 0 : pid[orientation][measure]
+				end
 			end
 		end
 
-		return pid_by_target
 	else
 		redundancy = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
+		pid["redundancy"] = redundancy
 
-		unique_x = mutual_information_xz - redundancy
-		unique_y = mutual_information_yz - redundancy
-		synergy = interaction_information + redundancy
+		if include_unique
+			unique_x = mutual_information_xz - redundancy
+			unique_y = mutual_information_yz - redundancy
+			# Rounding errors may lead to slightly negative results
+			pid["unique_1"] = unique_x < 0 ? 0 : unique_x
+			pid["unique_2"] = unique_y < 0 ? 0 : unique_y
+		end
+
+		if include_synergy
+			synergy = interaction_information + redundancy
+			# Rounding errors may lead to slightly negative results
+			pid["synergy"] = synergy < 0 ? 0 : synergy
+		end
 	end
 
-	# Rounding errors may lead to slightly negative results
-	unique_x = unique_x > 0 ? unique_x : 0
-	unique_y = unique_y > 0 ? unique_y : 0
-	synergy = synergy > 0 ? synergy : 0
-
-	return redundancy, unique_x, unique_y, synergy
+	return pid
 end
 
 function get_dual_total_correlation()
