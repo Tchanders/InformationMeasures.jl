@@ -446,26 +446,6 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 			pid["y"]["synergy"] = interaction_information + redundnacy_xz_y
 			pid["x"]["synergy"] = interaction_information + redundnacy_yz_x
 		end
-		
-
-		# pid["z"] = Dict(
-		# 	"redundancy" => redundnacy_xy_z,
-		# 	"unique_1" => mutual_information_xz - redundnacy_xy_z,
-		# 	"unique_2" => mutual_information_yz - redundnacy_xy_z,
-		# 	"synergy" => interaction_information + redundnacy_xy_z
-		# )
-		# pid["y"] = Dict(
-		# 	"redundancy" => redundnacy_xz_y,
-		# 	"unique_1" => mutual_information_xy - redundnacy_xz_y,
-		# 	"unique_2" => mutual_information_yz - redundnacy_xz_y,
-		# 	"synergy" => interaction_information + redundnacy_xz_y
-		# )
-		# pid["x"] = Dict(
-		# 	"redundancy" => redundnacy_yz_x,
-		# 	"unique_1" => mutual_information_xy - redundnacy_yz_x,
-		# 	"unique_2" => mutual_information_xz - redundnacy_yz_x,
-		# 	"synergy" => interaction_information + redundnacy_yz_x
-		# )
 
 		# Rounding errors may lead to slightly negative results
 		for orientation in ["x", "y", "z"]
