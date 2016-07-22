@@ -13,9 +13,8 @@
 # TODO: Credits and citations
 # TODO: Add aliases for the modes
 # TODO: Add aliases for the estimators
-# TODO: Work out whether/how to support values/frequencies/probabilities as user input
-# TODO: Add functions for interaction information etc
-# TODO: Documentation using Docile and Lexicon
+# TODO: Add functions for further measures
+# TODO: Documentation using Documenter
 
 export discretize_values,
 	get_probabilities,
@@ -477,10 +476,3 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 
 	return pid
 end
-
-function get_dual_total_correlation()
-end
-
-function get_delta_i()
-end
-

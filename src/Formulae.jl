@@ -78,9 +78,3 @@ end
 function apply_total_correlation_formula(entropy_x, entropy_y, entropy_z, entropy_xyz)
 	return entropy_x + entropy_y + entropy_z - entropy_xyz
 end
-
-function apply_dual_total_correlation_formula()
-end
-
-function apply_delta_i_formula()
-end
