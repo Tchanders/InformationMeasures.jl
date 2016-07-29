@@ -1,9 +1,6 @@
 # Functions to aid discretization of raw values
 
 using Discretizers
-using PyCall
-
-@pyimport astroML.density_estimation as de
 
 export get_bin_ids!, get_frequencies_from_bin_ids
 
@@ -129,9 +126,9 @@ function get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
 		end
 	elseif mode == "bayesian_blocks"
 		try
-			# The commented line is for a future Julia implementation of Bayesian blocks
-			# edges = sort(unique(bayesianBlocks(reshape(values_x, length(values_x)))))
-			edges = de.bayesian_blocks(reshape(values_x, length(values_x)))
+			# The following line should be uncommented when Bayesian blocks is available through Discretizers.jl
+			# edges = binedges(DiscretizeBayesianBlocks(), values_x)
+			edges = bayesianBlocks(values_x)
 			bin_ids[1:end] = encode(LinearDiscretizer(edges), values_x)
 			number_of_bins = length(edges) - 1
 		catch
