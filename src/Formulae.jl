@@ -15,8 +15,6 @@ export apply_entropy_formula, apply_conditional_entropy_formula, apply_mutual_in
 # 	Optional:
 # 	Keyword:
 function apply_entropy_formula(probabilities, base)
-	# In tests filtering first was faster than summing p == 0 ? 0 : p * log(p),
-	# but using isnan was quicker than filtering
 	probs = probabilities .* log(base, probabilities)
 	probs[isnan(probs)] = 0
 	return -sum(probs)
@@ -79,10 +77,4 @@ end
 # 	Keyword:
 function apply_total_correlation_formula(entropy_x, entropy_y, entropy_z, entropy_xyz)
 	return entropy_x + entropy_y + entropy_z - entropy_xyz
-end
-
-function apply_dual_total_correlation_formula()
-end
-
-function apply_delta_i_formula()
 end
