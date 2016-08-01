@@ -121,7 +121,7 @@ function get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
 		try
 			bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformCount(number_of_bins), reshape(values_x, length(values_x)))), values_x)
 		catch
-			bin_ids += encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values_x)), values_x)
+			bin_ids = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values_x)), values_x)
 			println("Uniform count failed, fell back to uniform width")
 		end
 	elseif mode == "bayesian_blocks"
