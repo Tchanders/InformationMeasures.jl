@@ -56,9 +56,9 @@ end
 # 	- estimator, string
 # 	- frequencies, array
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
+# 	- prior = 1, number - only used if estimator is "dirichlet"
 # 	Keyword:
-function get_probabilities(estimator, frequencies, lambda, prior)
+function get_probabilities(estimator, frequencies, lambda, prior = 1)
 
 	if estimator == "maximum_likelihood" || estimator == "miller_madow"
 		probabilities = get_probabilities_maximum_likelihood(frequencies)
@@ -84,9 +84,9 @@ end
 #	- get_number_of_bins, function
 #	- discretized, boolean
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
+# 	- prior = 1, number - only used if estimator is "dirichlet"
 function get_entropy(values_x...; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
-	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0)
+	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 1)
 
 	# If discretized, values_x should be one array of frequencies
 	# (because higher dimensional frequencies cannot be reconstructed
@@ -119,9 +119,9 @@ end
 #	- number_of_bins, number
 #	- get_number_of_bins, function
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
+# 	- prior = 1, number - only used if estimator is "dirichlet"
 function get_conditional_entropy(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
-	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 0)
+	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
 	
 	frequencies_xy = discretize_values(values_x, values_y, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
@@ -135,8 +135,8 @@ end
 # 	- base, number
 #	- probabilities = false, boolean - whether xy are probabilities
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
-function get_conditional_entropy(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0)
+# 	- prior = 1, number - only used if estimator is "dirichlet"
+function get_conditional_entropy(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
 	probabilities_xy = probabilities ? xy : get_probabilities(estimator, xy, lambda, prior)
 	probabilities_y = sum(probabilities_xy, 2)
@@ -165,9 +165,9 @@ end
 #	- number_of_bins, number
 #	- get_number_of_bins, function
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
+# 	- prior = 1, number - only used if estimator is "dirichlet"
 function get_mutual_information(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
-	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 0)
+	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
 
 	frequencies_xy = discretize_values(values_x, values_y, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
@@ -181,8 +181,8 @@ end
 # 	- base, number
 #	- probabilities = false, boolean - whether xy are probabilities
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
-function get_mutual_information(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0)
+# 	- prior = 1, number - only used if estimator is "dirichlet"
+function get_mutual_information(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
 	probabilities_xy = probabilities ? xy : get_probabilities(estimator, xy, lambda, prior)
 	probabilities_x = sum(probabilities_xy, 1)
@@ -215,9 +215,9 @@ end
 #	- number_of_bins, number
 #	- get_number_of_bins, function
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
+# 	- prior = 1, number - only used if estimator is "dirichlet"
 function get_conditional_mutual_information(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
-	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 0)
+	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
 
 	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
@@ -231,8 +231,8 @@ end
 # 	- base, number
 #	- probabilities = false, boolean - whether xyz are probabilities
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
-function get_conditional_mutual_information(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0)
+# 	- prior = 1, number - only used if estimator is "dirichlet"
+function get_conditional_mutual_information(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
 	probabilities_xz = sum(probabilities_xyz, 2)
@@ -268,9 +268,9 @@ end
 #	- number_of_bins, number
 #	- get_number_of_bins, function
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
+# 	- prior = 1, number - only used if estimator is "dirichlet"
 function get_interaction_information(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
-	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 0)
+	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
 
 	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
@@ -284,8 +284,8 @@ end
 # 	- base, number
 #	- probabilities = false, boolean - whether xyz are probabilities
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
-function get_interaction_information(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0)
+# 	- prior = 1, number - only used if estimator is "dirichlet"
+function get_interaction_information(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
 	probabilities_xy = probabilities_xz = sum(probabilities_xyz, 3)
@@ -309,18 +309,18 @@ end
 #	- number_of_bins, number
 #	- get_number_of_bins, function
 # 	- lambda = nothing, number - only used if estimator is "shrinkage"
-# 	- prior = 0, number - only used if estimator is "dirichlet"
+# 	- prior = 1, number - only used if estimator is "dirichlet"
 #	NB This is only implemented for 3 variables, since:
 #	* it is equivalent to mutual information for 2 variables
 #	* the package currently doesn't handle more than 3 variables (limited by get_frequencies)
 function get_total_correlation(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
-	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0)
+	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 1)
 
 	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
 	return get_total_correlation(frequencies_xyz; estimator = estimator, base = base, lambda = lambda, prior = prior)
 end
-function get_total_correlation(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0)
+function get_total_correlation(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda, prior)
 	probabilities_xy = sum(probabilities_xyz, 3)
@@ -341,7 +341,7 @@ end
 # TODO: Refactor so this always returns the same type
 # - all_orientations, boolean - whether or not to calculate pid with each of the three variables as targets
 function get_partial_information_decomposition(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
-	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 0, all_orientations = false, include_unique = true, include_synergy = true)
+	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 1, all_orientations = false, include_unique = true, include_synergy = true)
 
 	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
@@ -349,7 +349,7 @@ function get_partial_information_decomposition(values_x, values_y, values_z; est
 		include_unique = include_unique, include_synergy = include_synergy)
 end
 
-function get_partial_information_decomposition(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 0, all_orientations = false,
+function get_partial_information_decomposition(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1, all_orientations = false,
 	include_unique = true, include_synergy = true)
 
 	function get_redundancy(probabilities_target, probabilities_source_1, probabilities_source_2, probabilities_source_1_target, probabilities_source_2_target, target_dimension)
