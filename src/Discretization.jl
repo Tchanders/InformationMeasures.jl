@@ -126,9 +126,7 @@ function get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
 		end
 	elseif mode == "bayesian_blocks"
 		try
-			# The following line should be uncommented when Bayesian blocks is available through Discretizers.jl
-			# edges = binedges(DiscretizeBayesianBlocks(), values_x)
-			edges = bayesianBlocks(values_x)
+			edges = binedges(DiscretizeBayesianBlocks(), values_x)
 			bin_ids[1:end] = encode(LinearDiscretizer(edges), values_x)
 			number_of_bins = length(edges) - 1
 		catch
