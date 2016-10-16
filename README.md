@@ -1,8 +1,8 @@
-# EntropyEstimators
+# InformationMeasures
 
 ## Installation
 
-Pkg.clone("git://github.com/Tchanders/EntropyEstimators.jl.git")
+Pkg.clone("git://github.com/Tchanders/InformationMeasures.jl.git")
 
 ## Basic usage
 
@@ -11,7 +11,7 @@ Currently information measures on three or fewer variables are supported. The ba
 It is also possible to pass in frequencies (if the data has already been discretized), or probabilities (if the probabilities are already known or have already been estimated) - see below.
 
 ```
-using EntropyEstimators
+using InformationMeasures
 
 data_1 = rand(100)
 data_2 = rand(100)

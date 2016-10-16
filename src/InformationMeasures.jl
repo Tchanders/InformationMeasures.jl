@@ -1,4 +1,4 @@
-module EntropyEstimators
+module InformationMeasures
 
 include("../src/Discretization.jl")
 include("../src/Estimators.jl")
