@@ -3,7 +3,7 @@ using Base.Test
 include("../src/Discretization.jl")
 include("../src/Estimators.jl")
 include("../src/Formulae.jl")
-include("../src/ExportedFunctions.jl")
+include("../src/Measures.jl")
 
 arr1 = rand(1000)
 arr2 = rand(1000)
