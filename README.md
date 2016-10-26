@@ -43,31 +43,31 @@ tc_123 = get_total_correlation(data_1, data_2, data_3)
 The following keyword arguments can be passed in to each function:
 
 **estimator** (String) Estimator for estimating the probability distribution
-* "maximum_likelihood" (default)
-* "miller_madow"
-* "dirichlet"
-* "shrinkage"
+* `"maximum_likelihood"` (default)
+* `"miller_madow"`
+* `"dirichlet"`
+* `"shrinkage"`
 
 **base** (Number) Base of the logarithm, i.e. the units for entropy
-* 2 (default)
+* `2` (default)
 
 **mode** (String) Method for discretizing
-* "uniform_width" (default)
-* "uniform_count"
+* `"uniform_width"` (default)
+* `"uniform_count"`
 
 **number_of_bins** (Integer)
-* 0 (default)
+* `0` (default)
 
-**get_number_of_bins** (Function) Customized function for calculating the number of bins (will only be used if number_of_bins is 0)
-* get_root_n (default)
+**get_number_of_bins** (Function) Customized function for calculating the number of bins (will only be used if `number_of_bins` is `0`)
+* `get_root_n` (default)
 
 #### Estimator-specific config options
 
 **lambda** (Void or Number) Shrinkage intensity (if left as `nothing`, will be calculated automatically)
-* nothing (default)
+* `nothing` (default)
 
 **prior** (Number) Dirichlet prior (if left as `0`, Dirichlet estimator is equivalent to maximum likelihood)
-* 0 (default)
+* `0` (default)
 
 #### Values, frequencies, or probabilities
 
