@@ -1,27 +1,20 @@
-# Functions to aid discretization of raw values
+# Functions for discretizing continuous values using various algorithms
 
 using Discretizers
 
 export get_bin_ids!, get_frequencies_from_bin_ids
 
 # Parameters:
-# 	Normal:
-#	Varargs:
-# 	- values_x, arrays of floats (could be 1, 2 or 3)
-# 	Optional:
-# 	Keyword:
+# 	- values_x, arrays of floats (multiple arrays supported)
 function get_root_n(values_x...)
 	return round(Int, sqrt(size(values_x[1])[1]))
 end
 
 # Parameters:
-# 	Normal:
-# 	- values_x, arrays of floats (could be 1, 2 or 3)
+# 	- values_x, arrays of floats (multiple arrays supported)
 # 	- mode, string
 #	- number_of_bins, number
-# 	Optional:
-# 	Keyword:
-function get_frequencies(mode, number_of_bins, values_x; discretized = false)
+function get_frequencies(mode, number_of_bins, values_x)
 	bin_ids = Array(Int, size(values_x))
 	number_of_bins = get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
 	frequencies = zeros(Int, (number_of_bins, 1))
@@ -58,7 +51,6 @@ function get_frequencies(mode, number_of_bins, values_x, values_y, values_z)
 	end
 	return frequencies
 end
-# TODO: sort out the ordering of the parameters
 function get_frequencies(mode, number_of_bins, values_x...)
 	# n is the number of data points
 	n = size(values_x[1])[1]
@@ -71,7 +63,6 @@ function get_frequencies(mode, number_of_bins, values_x...)
 		bin_ids[i] = Array(Int, size(current_values))
 		all_number_of_bins[i] = get_bin_ids!(current_values, mode, number_of_bins, bin_ids[i])
 	end
-	println(all_number_of_bins)
 	frequencies = zeros(Int, tuple(all_number_of_bins...))
 	for i in 1:n
 		frequencies[ntuple(x -> bin_ids[x][i], d)...] += 1
@@ -79,7 +70,11 @@ function get_frequencies(mode, number_of_bins, values_x...)
 	return frequencies
 end
 
-# Added this function to speed up PIDs for large networks
+# Parameters:
+# 	- bin_ids_x, array of ints
+# 	- bin_ids_y, array of ints
+# 	- number_of_bins_x, number
+#	- number_of_bins_y, number
 function get_frequencies_from_bin_ids(bin_ids_x, bin_ids_y, number_of_bins_x, number_of_bins_y)
 	n = size(bin_ids_x)[1]
 	frequencies = zeros(Int, (number_of_bins_x, number_of_bins_y))
@@ -98,14 +93,10 @@ function get_frequencies_from_bin_ids(bin_ids_x, bin_ids_y, bin_ids_z, number_of
 end
 
 # Parameters:
-# 	Normal:
-# 	- values_x, arrays of floats (coule be 1, 2 or 3)
-# 	- mode, number
+# 	- values_x, array of floats
+# 	- mode, string
 #	- number_of_bins, integer
 #	- bin_ids, 1-dimensional array of bin ids for each value
-# 	Optional:
-# 	Keyword:
-# function get_bin_ids(values, mode, number_of_bins)
 function get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
 	min, max = extrema(values_x)
 	if min == max

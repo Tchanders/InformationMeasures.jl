@@ -1,34 +1,31 @@
-# The probability functions for the different estimators
+# Functions for estimating probabilities using various estimators
 
-# TODO: Reorganize shrinkage
+# Estimators are described in:
+# Hausser, Jean; Strimmer, Korbinian (2009-01-01).
+# "Entropy Inference and the James-Stein Estimator, with Application to Nonlinear Gene Association Networks"
+# https://arxiv.org/abs/0811.3579
+
+# R implementation of estimators:
+# https://cran.r-project.org/web/packages/entropy/
 
 # Parameters:
-# 	Normal:
 # 	- frequencies, integer array
-# 	- a, number (currently optional but shouldn't be)
-# 	Optional:
-# 	Keyword:
+# 	- prior, number
 function get_probabilities_dirichlet(frequencies, prior)
 	prior = fill(prior, size(frequencies))
 	return (frequencies + prior) / (sum(frequencies) + sum(prior))
 end
 
 # Parameters:
-# 	Normal:
 # 	- frequencies, integer array
-# 	Optional:
-# 	Keyword:
 function get_probabilities_maximum_likelihood(frequencies)
 	return frequencies / sum(frequencies)
 end
 
 # Parameters:
-# 	Normal:
 # 	- frequencies, integer array
-# 	Optional:
-# 	- lambda, number OR void
+# 	- lambda, void
 #	- get_target, function
-# 	Keyword:
 function get_probabilities_shrinkage(frequencies, lambda::Void, get_target = get_uniform_distribution)
 	target = get_target(frequencies)
 	n = sum(frequencies)
@@ -36,20 +33,28 @@ function get_probabilities_shrinkage(frequencies, lambda::Void, get_target = get
 	lambda = get_lambda(normalized_frequencies, target, n)
 	return apply_shrinkage_formula(normalized_frequencies, target, lambda)
 end
+# Parameters:
+# 	- frequencies, integer array
+# 	- lambda, number
+#	- get_target, function
 function get_probabilities_shrinkage(frequencies, lambda::Number, get_target = get_uniform_distribution)
 	target = get_target(frequencies)
 	normalized_frequencies = get_normalized_frequencies(frequencies)
 	return apply_shrinkage_formula(normalized_frequencies, target, lambda)
 end
+
 function apply_shrinkage_formula(normalized_frequencies, target, lambda)
 	return lambda * target + (1 - lambda) * normalized_frequencies
 end
+
 function get_uniform_distribution(frequencies)
 	return 1 / length(frequencies)
 end
+
 function get_normalized_frequencies(frequencies)
 	return frequencies / sum(frequencies)
 end
+
 function get_lambda(normalized_frequencies, target, n)
 	if n == 1 || n == 0
 		return 1
