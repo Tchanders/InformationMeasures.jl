@@ -1,8 +1,5 @@
 # Test discretization functions
 
-# Later this will be in runtests
-using Base.Test
-
 arr = rand(100)
 
 # Test with 1 values array
@@ -16,6 +13,10 @@ println("Discretize values with 2 arrays passed.")
 # Test with 3 values arrays
 @test size(discretize_values(arr, arr, arr)) == (10, 10, 10)
 println("Discretize values with 3 arrays passed.")
+
+# Test with 4 values arrays
+@test size(discretize_values(arr, arr, arr, arr)) == (10, 10, 10, 10)
+println("Discretize values with >3 arrays passed.")
 
 # Test with uniform_width
 @test size(discretize_values(arr, mode = "uniform_width")) == (10, 1)

@@ -412,19 +412,19 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 
 		for (i, probability_target) in enumerate(probabilities_target)
 			if target_dimension == 3
-				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, :, i], probabilities_source_1, probability_target)
-				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, :, i], probabilities_source_2, probability_target)
+				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, :, i:i], probabilities_source_1, probability_target)
+				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, :, i:i], probabilities_source_2, probability_target)
 			elseif target_dimension == 2
-				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, i, :], probabilities_source_1, probability_target)
-				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, i, :], probabilities_source_2, probability_target)
+				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, i:i, :], probabilities_source_1, probability_target)
+				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, i:i, :], probabilities_source_2, probability_target)
 			else
-				specific_information_source_1 = get_specific_information(probabilities_source_1_target[i, :, :], probabilities_source_1, probability_target)
-				specific_information_source_2 = get_specific_information(probabilities_source_2_target[i, :, :], probabilities_source_2, probability_target)
+				specific_information_source_1 = get_specific_information(probabilities_source_1_target[i:i, :, :], probabilities_source_1, probability_target)
+				specific_information_source_2 = get_specific_information(probabilities_source_2_target[i:i, :, :], probabilities_source_2, probability_target)
 			end
 			minimum_specific_information[i] += min(specific_information_source_1, specific_information_source_2)
 		end
 
-		return sum(collect(probabilities_target) .* minimum_specific_information)
+		return sum(vec(collect(probabilities_target)) .* minimum_specific_information)
 	end
 
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda = lambda, prior = prior)
