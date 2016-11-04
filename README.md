@@ -2,7 +2,7 @@
 
 ## Installation
 
-`Pkg.clone("git://github.com/Tchanders/InformationMeasures.jl.git")`
+`Pkg.add("InformationMeasures")`
 
 ## Basic usage
 
