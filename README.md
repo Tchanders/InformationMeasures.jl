@@ -36,6 +36,9 @@ ii_123 = get_interaction_information(data_1, data_2, data_3)
 
 # Total correlation
 tc_123 = get_total_correlation(data_1, data_2, data_3)
+
+# Partial information decomposition
+pid_123 = get_partial_information_decomposition(data_1, data_2, data_3)
 ```
 
 ## Config options

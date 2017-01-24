@@ -17,7 +17,7 @@ export apply_entropy_formula, apply_conditional_entropy_formula, apply_mutual_in
 # 	- base, number
 function apply_entropy_formula(probabilities, base)
 	probs = probabilities .* log(base, probabilities)
-	probs[isnan(probs)] = 0
+	probs[isnan(probs)] = 0.0
 	return -sum(probs)
 end
 

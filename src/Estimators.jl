@@ -12,8 +12,8 @@
 # 	- frequencies, integer array
 # 	- prior, number
 function get_probabilities_dirichlet(frequencies, prior)
-	prior = fill(prior, size(frequencies))
-	return (frequencies + prior) / (sum(frequencies) + sum(prior))
+	prior_frequencies = fill(prior, size(frequencies))
+	return (frequencies + prior_frequencies) / (sum(frequencies) + sum(prior_frequencies))
 end
 
 # Parameters:
@@ -22,23 +22,22 @@ function get_probabilities_maximum_likelihood(frequencies)
 	return frequencies / sum(frequencies)
 end
 
+# TODO: allow pre-calculated target to be passed in instead of uniform distribution
 # Parameters:
 # 	- frequencies, integer array
 # 	- lambda, void
-#	- get_target, function
-function get_probabilities_shrinkage(frequencies, lambda::Void, get_target = get_uniform_distribution)
-	target = get_target(frequencies)
+function get_probabilities_shrinkage(frequencies, lambda::Void)
+	target = get_uniform_distribution(frequencies)
 	n = sum(frequencies)
 	normalized_frequencies = frequencies / n
-	lambda = get_lambda(normalized_frequencies, target, n)
-	return apply_shrinkage_formula(normalized_frequencies, target, lambda)
+	calculated_lambda = get_lambda(normalized_frequencies, target, n)
+	return apply_shrinkage_formula(normalized_frequencies, target, calculated_lambda)
 end
 # Parameters:
 # 	- frequencies, integer array
 # 	- lambda, number
-#	- get_target, function
-function get_probabilities_shrinkage(frequencies, lambda::Number, get_target = get_uniform_distribution)
-	target = get_target(frequencies)
+function get_probabilities_shrinkage(frequencies, lambda)
+	target = get_uniform_distribution(frequencies)
 	normalized_frequencies = get_normalized_frequencies(frequencies)
 	return apply_shrinkage_formula(normalized_frequencies, target, lambda)
 end
@@ -57,7 +56,7 @@ end
 
 function get_lambda(normalized_frequencies, target, n)
 	if n == 1 || n == 0
-		return 1
+		return 1.0
 	end
 	# Add better comments about varu and msp
 	# Unbiased estimator of variance of u
@@ -65,10 +64,10 @@ function get_lambda(normalized_frequencies, target, n)
 	msp = sum((normalized_frequencies - target).^2) # misspecification ???
 
 	# Estimate shrinkage intensity
-	lambda = msp == 0 ? 1 : sum(varu) / msp
+	lambda = msp == 0 ? 1.0 : sum(varu) / msp
 	
 	# Make lambda be between 0 and 1 inclusive
-	return lambda > 1 ? 1 : (lambda < 0 ? 0 : lambda)
+	return lambda > 1 ? 1.0 : (lambda < 0 ? 0.0 : lambda)
 
 end
 function get_lambda(frequencies, get_target = get_uniform_distribution)
