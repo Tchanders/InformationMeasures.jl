@@ -57,6 +57,7 @@ The following keyword arguments can be passed in to each function:
 **mode** (String) Method for discretizing
 * `"uniform_width"` (default)
 * `"uniform_count"`
+* `"bayesian_blocks"`
 
 **number_of_bins** (Integer)
 * `0` (default)
