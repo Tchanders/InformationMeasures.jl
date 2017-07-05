@@ -482,14 +482,19 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 		redundancy = apply_redundancy_formula(probabilities_xz, probabilities_yz, probabilities_x, probabilities_y, probabilities_z, (1, 2), base)
 		pid["redundancy"] = redundancy
 
-		unique_x = mutual_information_xz - redundancy
-		unique_y = mutual_information_yz - redundancy
-		synergy = interaction_information + redundancy
+		if include_unique
+			unique_x = mutual_information_xz - redundancy
+			unique_y = mutual_information_yz - redundancy
+			# Rounding errors may lead to slightly negative results
+			pid["unique_1"] = unique_x < 0 ? 0 : unique_x
+			pid["unique_2"] = unique_y < 0 ? 0 : unique_y
+		end
 
-		# Rounding errors may lead to slightly negative results
-		pid["unique_1"] = unique_x < 0 ? 0 : unique_x
-		pid["unique_2"] = unique_y < 0 ? 0 : unique_y
-		pid["synergy"] = synergy < 0 ? 0 : synergy
+		if include_synergy
+			synergy = interaction_information + redundancy
+			# Rounding errors may lead to slightly negative results
+			pid["synergy"] = synergy < 0 ? 0 : synergy
+		end
 
 	end
 
