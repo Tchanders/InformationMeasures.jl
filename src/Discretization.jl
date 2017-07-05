@@ -2,7 +2,7 @@
 
 using Discretizers
 
-export get_bin_ids!, get_frequencies_from_bin_ids
+export get_bin_ids!, get_frequencies, get_frequencies_from_bin_ids
 
 # Parameters:
 # 	- values_x, arrays of floats (multiple arrays supported)
@@ -72,9 +72,15 @@ end
 
 # Parameters:
 # 	- bin_ids_x, array of ints
-# 	- bin_ids_y, array of ints
 # 	- number_of_bins_x, number
-#	- number_of_bins_y, number
+function get_frequencies_from_bin_ids(bin_ids_x, number_of_bins_x)
+	n = size(bin_ids_x)[1]
+	frequencies = zeros(Int, number_of_bins_x)
+	for i in 1:n
+		frequencies[bin_ids_x[i]] += 1
+	end
+	return frequencies
+end
 function get_frequencies_from_bin_ids(bin_ids_x, bin_ids_y, number_of_bins_x, number_of_bins_y)
 	n = size(bin_ids_x)[1]
 	frequencies = zeros(Int, (number_of_bins_x, number_of_bins_y))

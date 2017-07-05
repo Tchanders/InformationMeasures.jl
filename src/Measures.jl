@@ -1,4 +1,6 @@
-# Exported functions for estimating information measures for continuous or discrete datasets
+# Functions for estimating information measures for continuous or discrete datasets.
+# These are intended to maximise ease of use for setting different options. For
+# maximum speed, it may be better to use the functions from Formulae.jl directly.
 
 export discretize_values,
 	get_probabilities,
@@ -8,7 +10,8 @@ export discretize_values,
 	get_conditional_mutual_information,
 	get_total_correlation,
 	get_interaction_information,
-	get_partial_information_decomposition
+	get_partial_information_decomposition,
+	get_redundancy
 
 """
     discretize_values(values_x; <keyword arguments>)
@@ -183,18 +186,18 @@ function get_mutual_information(xy; estimator = "maximum_likelihood", base = 2, 
 	probabilities_x = sum(probabilities_xy, 1)
 	probabilities_y = sum(probabilities_xy, 2)
 
-	entropy_xy = apply_entropy_formula(probabilities_xy, base)
-	entropy_x = apply_entropy_formula(probabilities_x, base)
-	entropy_y = apply_entropy_formula(probabilities_y, base)
-
 	# TODO: either deprecate or add warning about inappropriate use
 	if estimator == "miller_madow"
+		entropy_xy = apply_entropy_formula(probabilities_xy, base)
+		entropy_x = apply_entropy_formula(probabilities_x, base)
+		entropy_y = apply_entropy_formula(probabilities_y, base)
 		entropy_xy += (countnz(probabilities_xy) - 1) / (2 * length(probabilities_xy))
 		entropy_x += (countnz(probabilities_x) - 1) / (2 * length(probabilities_x))
 		entropy_y += (countnz(probabilities_y) - 1) / (2 * length(probabilities_y))
+		return apply_mutual_information_formula(entropy_x, entropy_y, entropy_xy)
 	end
 
-	return apply_mutual_information_formula(entropy_x, entropy_y, entropy_xy)
+	return apply_mutual_information_formula(probabilities_xy, probabilities_x, probabilities_y, base)
 end
 
 """
@@ -228,7 +231,7 @@ end
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
-* `probabilities=false`: whether `xy` is probabilities. If `false`, `xy` is frequencies.
+* `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
 """
@@ -286,7 +289,7 @@ end
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
-* `probabilities=false`: whether `xy` is probabilities. If `false`, `xy` is frequencies.
+* `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
 """
@@ -332,7 +335,7 @@ end
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
-* `probabilities=false`: whether `xy` is probabilities. If `false`, `xy` is frequencies.
+* `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
 """
@@ -389,7 +392,7 @@ end
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
-* `probabilities=false`: whether `xy` is probabilities. If `false`, `xy` is frequencies.
+* `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
 * `all_orientations=false`: whether to use each set of values as the target. If `false`, only `values_z` is the target.
@@ -398,34 +401,6 @@ end
 """
 function get_partial_information_decomposition(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1, all_orientations = false,
 	include_unique = true, include_synergy = true)
-
-	function get_redundancy(probabilities_target, probabilities_source_1, probabilities_source_2, probabilities_source_1_target, probabilities_source_2_target, target_dimension)
-
-		function get_specific_information(probabilities_source_target_i, probabilities_source, probabilities_target_i)
-			specific_information = (probabilities_source_target_i / probabilities_target_i) .* log(base, probabilities_source_target_i ./ (probabilities_source * probabilities_target_i))
-			specific_information[!isfinite(specific_information)] = 0
-			return sum(specific_information)
-		end
-
-		number_of_target_states = length(probabilities_target)
-		minimum_specific_information = zeros(number_of_target_states)
-
-		for (i, probability_target) in enumerate(probabilities_target)
-			if target_dimension == 3
-				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, :, i:i], probabilities_source_1, probability_target)
-				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, :, i:i], probabilities_source_2, probability_target)
-			elseif target_dimension == 2
-				specific_information_source_1 = get_specific_information(probabilities_source_1_target[:, i:i, :], probabilities_source_1, probability_target)
-				specific_information_source_2 = get_specific_information(probabilities_source_2_target[:, i:i, :], probabilities_source_2, probability_target)
-			else
-				specific_information_source_1 = get_specific_information(probabilities_source_1_target[i:i, :, :], probabilities_source_1, probability_target)
-				specific_information_source_2 = get_specific_information(probabilities_source_2_target[i:i, :, :], probabilities_source_2, probability_target)
-			end
-			minimum_specific_information[i] += min(specific_information_source_1, specific_information_source_2)
-		end
-
-		return sum(vec(collect(probabilities_target)) .* minimum_specific_information)
-	end
 
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda = lambda, prior = prior)
 
@@ -464,33 +439,33 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 	pid = Dict()
 
 	if all_orientations
-		redundnacy_xy_z = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
-		redundnacy_xz_y = get_redundancy(probabilities_y, probabilities_x, probabilities_z, probabilities_xy, probabilities_yz, 2)
-		redundnacy_yz_x = get_redundancy(probabilities_x, probabilities_y, probabilities_z, probabilities_xy, probabilities_xz, 1)
+		redundancy_xy_z = apply_redundancy_formula(probabilities_xz, probabilities_yz, probabilities_x, probabilities_y, probabilities_z, (1, 2), base)
+		redundancy_xz_y = apply_redundancy_formula(probabilities_xy, probabilities_yz, probabilities_x, probabilities_z, probabilities_y, (1, 3), base)
+		redundancy_yz_x = apply_redundancy_formula(probabilities_xy, probabilities_xz, probabilities_y, probabilities_z, probabilities_x, (2, 3), base)
 
 		pid["z"] = Dict(
-			"redundancy" => redundnacy_xy_z
+			"redundancy" => redundancy_xy_z
 		)
 		pid["y"] = Dict(
-			"redundancy" => redundnacy_xz_y
+			"redundancy" => redundancy_xz_y
 		)
 		pid["x"] = Dict(
-			"redundancy" => redundnacy_yz_x
+			"redundancy" => redundancy_yz_x
 		)
 
 		if include_unique
-			pid["z"]["unique_1"] = mutual_information_xz - redundnacy_xy_z
-			pid["z"]["unique_2"] = mutual_information_yz - redundnacy_xy_z
-			pid["y"]["unique_1"] = mutual_information_xy - redundnacy_xz_y
-			pid["y"]["unique_2"] = mutual_information_yz - redundnacy_xz_y
-			pid["x"]["unique_1"] = mutual_information_xy - redundnacy_yz_x
-			pid["x"]["unique_2"] = mutual_information_xz - redundnacy_yz_x
+			pid["z"]["unique_1"] = mutual_information_xz - redundancy_xy_z
+			pid["z"]["unique_2"] = mutual_information_yz - redundancy_xy_z
+			pid["y"]["unique_1"] = mutual_information_xy - redundancy_xz_y
+			pid["y"]["unique_2"] = mutual_information_yz - redundancy_xz_y
+			pid["x"]["unique_1"] = mutual_information_xy - redundancy_yz_x
+			pid["x"]["unique_2"] = mutual_information_xz - redundancy_yz_x
 		end
 
 		if include_synergy
-			pid["z"]["synergy"] = interaction_information + redundnacy_xy_z
-			pid["y"]["synergy"] = interaction_information + redundnacy_xz_y
-			pid["x"]["synergy"] = interaction_information + redundnacy_yz_x
+			pid["z"]["synergy"] = interaction_information + redundancy_xy_z
+			pid["y"]["synergy"] = interaction_information + redundancy_xz_y
+			pid["x"]["synergy"] = interaction_information + redundancy_yz_x
 		end
 
 		# Rounding errors may lead to slightly negative results
@@ -503,7 +478,8 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 		end
 
 	else
-		redundancy = get_redundancy(probabilities_z, probabilities_x, probabilities_y, probabilities_xz, probabilities_yz, 3)
+
+		redundancy = apply_redundancy_formula(probabilities_xz, probabilities_yz, probabilities_x, probabilities_y, probabilities_z, (1, 2), base)
 		pid["redundancy"] = redundancy
 
 		if include_unique
@@ -519,7 +495,66 @@ function get_partial_information_decomposition(xyz; estimator = "maximum_likelih
 			# Rounding errors may lead to slightly negative results
 			pid["synergy"] = synergy < 0 ? 0 : synergy
 		end
+
 	end
 
 	return pid
+end
+
+"""
+    get_redundancy(values_x, values_y, values_z; <keyword arguments>)
+
+Estimate the redundancy between three sets of values.
+
+# Arguments:
+* `values_x`: the data values.
+* `values_y`: a second set of data values.
+* `values_z`: a third set of data values.
+* `estimator="maximum_likelihood"`: the entropy estimator.
+* `base=2`: the base of the logarithm, equqivalent to the units of information.
+* `mode="uniform_width"`: the discretization algorithm.
+* `number_of_bins=0`: the number of bins (will be overridden if `mode` is `"bayesian_blocks"`).
+* `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
+* `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
+* `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+* `all_orientations=false`: whether to use each set of values as the target. If `false`, only `values_z` is the target.
+"""
+function get_redundancy(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
+	get_number_of_bins = get_root_n, lambda = nothing, prior = 1, all_orientations = false)
+
+	frequencies_xyz = discretize_values(values_x, values_y, values_z, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+
+	return get_redundancy(frequencies_xyz; estimator = estimator, base = base, lambda = lambda, prior = prior, all_orientations = all_orientations)
+end
+"""
+    get_redundancy(xyz; <keyword arguments>)
+
+# Arguments:
+* `xyz`: the 3D frequencies or probabilities.
+* `estimator="maximum_likelihood"`: the entropy estimator.
+* `base=2`: the base of the logarithm, equivalent to the units of information.
+* `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
+* `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
+* `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+* `all_orientations=false`: whether to use each set of values as the target. If `false`, only `values_z` is the target.
+"""
+function get_redundancy(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1, all_orientations = false)
+	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda = lambda, prior = prior)
+
+	probabilities_xz = sum(probabilities_xyz, 2)
+	probabilities_yz = sum(probabilities_xyz, 1)
+	probabilities_xy = sum(probabilities_xyz, 3)
+	probabilities_x = sum(probabilities_xz, 3)
+	probabilities_y = sum(probabilities_yz, 3)
+	probabilities_z = sum(probabilities_xz, 1)
+
+	if all_orientations
+		redundancy_xy_z = apply_redundancy_formula(probabilities_xz, probabilities_yz, probabilities_x, probabilities_y, probabilities_z, (1, 2), base)
+		redundancy_xz_y = apply_redundancy_formula(probabilities_xy, probabilities_yz, probabilities_x, probabilities_z, probabilities_y, (1, 3), base)
+		redundancy_yz_x = apply_redundancy_formula(probabilities_xy, probabilities_xz, probabilities_y, probabilities_z, probabilities_x, (2, 3), base)
+
+		return (redundancy_xy_z, redundancy_xz_y, redundancy_yz_x)
+	else
+		return apply_redundancy_formula(probabilities_xz, probabilities_yz, probabilities_x, probabilities_y, probabilities_z, (1, 2), base)
+	end
 end
