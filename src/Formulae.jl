@@ -10,15 +10,22 @@
 
 export apply_entropy_formula, apply_conditional_entropy_formula, apply_mutual_information_formula,
 	apply_conditional_mutual_information_formula, apply_interaction_information_formula,
-	apply_total_correlation_formula
+	apply_total_correlation_formula, apply_specific_information_formula, apply_redundancy_formula,
+	apply_unique_information_formula, apply_synergy_formula
+
+function remove_non_finite(x)
+	return isfinite(x) ? x : zero(x)
+end
+
+function remove_negative(x)
+	return x < 0 ? zero(x) : x
+end
 
 # Parameters:
 # 	- probabilities, array of floats
 # 	- base, number
-function apply_entropy_formula(probabilities, base)
-	probs = probabilities .* log(base, probabilities)
-	probs[isnan(probs)] = 0.0
-	return -sum(probs)
+function apply_entropy_formula{T<:AbstractFloat,R<:Real}(p::Array{T}, base::R)
+	return -sum(remove_non_finite.(p .* log.(base, p)))
 end
 
 # Parameters:
@@ -28,6 +35,14 @@ function apply_conditional_entropy_formula(entropy_xy, entropy_y)
 	return entropy_xy - entropy_y
 end
 
+# Parameters:
+# 	- joint probabilities, array of floats
+# 	- probabilities (first variable), array of floats
+# 	- probabilities (second variable), array of floats
+# 	- base, number
+function apply_mutual_information_formula{T<:AbstractFloat,R<:Real}(p_xy::Array{T}, p_x::Array{T}, p_y::Array{T}, base::R)
+	return sum(remove_non_finite.(p_xy .* log.(base, p_xy ./ (p_x .* p_y))))
+end
 # Parameters:
 # 	- entropy of first variable, number
 # 	- entropy of second variable, number
@@ -58,4 +73,54 @@ end
 #	- joint entropy of all three variables, number
 function apply_total_correlation_formula(entropy_x, entropy_y, entropy_z, entropy_xyz)
 	return entropy_x + entropy_y + entropy_z - entropy_xyz
+end
+
+# Parameters:
+# 	- joint probabilities, array of floats
+# 	- probabilities (source), array of floats
+# 	- probabilities (target), array of floats
+# 	- dimension along which to sum, integer
+# 	- base, number
+function apply_specific_information_formula(p_xz, p_x, p_z, dim_sum, base)
+	return vec(sum(remove_non_finite.((p_xz ./ p_z) .* log.(base, p_xz ./ (p_x .* p_z))), dim_sum))
+end
+
+# Parameters:
+# 	- joint probabilities (source 1 and target), array of floats
+# 	- joint probabilities (source 2 and target), array of floats
+# 	- probabilities (source 1), array of floats
+# 	- probabilities (source 2), array of floats
+# 	- probabilities (target), array of floats
+# 	- dimensions along which to sum, tuple of integers
+# 	- base, number
+function apply_redundancy_formula{T<:AbstractFloat,R<:Real,I<:Integer}(p_xz::Array{T}, p_yz::Array{T}, p_x::Array{T}, p_y::Array{T}, p_z::Array{T}, dim_sum::Tuple{I,I}, base::R)
+	minimum_specific_information = min.(
+		apply_specific_information_formula(p_xz, p_x, p_z, dim_sum[1], base),
+		apply_specific_information_formula(p_yz, p_y, p_z, dim_sum[2], base)
+	)
+	return sum(vec(p_z) .* vec(minimum_specific_information))
+end
+# Parameters:
+# 	- probabilities (target), array of floats
+# 	- specific information of source 1 and target, array of floats
+# 	- specific information of source 2 and target, array of floats
+# 	- base, number
+function apply_redundancy_formula{T<:AbstractFloat,R<:Real}(p_z::Array{T}, specific_information_1::Array{T}, specific_information_2::Array{T}, base::R)
+	minimum_specific_information = min.(specific_information_1, specific_information_2)
+	return sum(vec(p_z) .* vec(minimum_specific_information))
+end
+
+# Parameters:
+# 	- mutual information of source 1 and target, number
+# 	- redundancy of both sources and target, number
+function apply_unique_information_formula(mutual_information, redundancy)
+	# Rounding errors may lead to slightly negative results
+	return remove_negative.(mutual_information - redundancy)
+end
+
+# Parameters:
+# 	- interaction information of both sources and target, number
+# 	- redundancy of both sources and target, number
+function apply_synergy_formula(interaction_information, redundancy)
+	return interaction_information + redundancy
 end
