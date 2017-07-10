@@ -24,7 +24,7 @@ end
 # Parameters:
 # 	- probabilities, array of floats
 # 	- base, number
-function apply_entropy_formula{T<:AbstractFloat,R<:Real}(p::Array{T}, base::R)
+function apply_entropy_formula{T<:AbstractFloat,R<:Real}(p::AbstractArray{T}, base::R)
 	return -sum(remove_non_finite.(p .* log.(base, p)))
 end
 
@@ -40,7 +40,7 @@ end
 # 	- probabilities (first variable), array of floats
 # 	- probabilities (second variable), array of floats
 # 	- base, number
-function apply_mutual_information_formula{T<:AbstractFloat,R<:Real}(p_xy::Array{T}, p_x::Array{T}, p_y::Array{T}, base::R)
+function apply_mutual_information_formula{T<:AbstractFloat,R<:Real}(p_xy::AbstractArray{T}, p_x::AbstractArray{T}, p_y::AbstractArray{T}, base::R)
 	return sum(remove_non_finite.(p_xy .* log.(base, p_xy ./ (p_x .* p_y))))
 end
 # Parameters:
@@ -93,7 +93,7 @@ end
 # 	- probabilities (target), array of floats
 # 	- dimensions along which to sum, tuple of integers
 # 	- base, number
-function apply_redundancy_formula{T<:AbstractFloat,R<:Real,I<:Integer}(p_xz::Array{T}, p_yz::Array{T}, p_x::Array{T}, p_y::Array{T}, p_z::Array{T}, dim_sum::Tuple{I,I}, base::R)
+function apply_redundancy_formula{T<:AbstractFloat,R<:Real,I<:Integer}(p_xz::AbstractArray{T}, p_yz::AbstractArray{T}, p_x::AbstractArray{T}, p_y::AbstractArray{T}, p_z::AbstractArray{T}, dim_sum::Tuple{I,I}, base::R)
 	minimum_specific_information = min.(
 		apply_specific_information_formula(p_xz, p_x, p_z, dim_sum[1], base),
 		apply_specific_information_formula(p_yz, p_y, p_z, dim_sum[2], base)
@@ -105,7 +105,7 @@ end
 # 	- specific information of source 1 and target, array of floats
 # 	- specific information of source 2 and target, array of floats
 # 	- base, number
-function apply_redundancy_formula{T<:AbstractFloat,R<:Real}(p_z::Array{T}, specific_information_1::Array{T}, specific_information_2::Array{T}, base::R)
+function apply_redundancy_formula{T<:AbstractFloat,R<:Real}(p_z::AbstractArray{T}, specific_information_1::AbstractArray{T}, specific_information_2::AbstractArray{T}, base::R)
 	minimum_specific_information = min.(specific_information_1, specific_information_2)
 	return sum(vec(p_z) .* vec(minimum_specific_information))
 end
