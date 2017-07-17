@@ -11,7 +11,7 @@
 export apply_entropy_formula, apply_conditional_entropy_formula, apply_mutual_information_formula,
 	apply_conditional_mutual_information_formula, apply_interaction_information_formula,
 	apply_total_correlation_formula, apply_specific_information_formula, apply_redundancy_formula,
-	apply_unique_information_formula, apply_synergy_formula
+	apply_unique_information_formula, apply_synergy_formula, apply_cross_entropy_formula
 
 function remove_non_finite(x)
 	return isfinite(x) ? x : zero(x)
