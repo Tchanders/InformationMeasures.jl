@@ -11,7 +11,7 @@
 export apply_entropy_formula, apply_conditional_entropy_formula, apply_mutual_information_formula,
 	apply_conditional_mutual_information_formula, apply_interaction_information_formula,
 	apply_total_correlation_formula, apply_specific_information_formula, apply_redundancy_formula,
-	apply_unique_information_formula, apply_synergy_formula
+	apply_unique_information_formula, apply_synergy_formula, apply_cross_entropy_formula
 
 function remove_non_finite(x)
 	return isfinite(x) ? x : zero(x)
@@ -123,4 +123,16 @@ end
 # 	- redundancy of both sources and target, number
 function apply_synergy_formula(interaction_information, redundancy)
 	return interaction_information + redundancy
+end
+
+# Parameters:
+#	- probabilities of first variable
+#	- probabilities of second variable
+#	- base of exponent
+function apply_cross_entropy_formula{T<:AbstractFloat, R<:Real}(
+        p_x::AbstractArray{T},
+        p_y::AbstractArray{T},
+        base::R,
+        )
+    return -sum(remove_non_finite.(p_x .* log.(base, p_y)))
 end
