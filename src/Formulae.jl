@@ -124,3 +124,15 @@ end
 function apply_synergy_formula(interaction_information, redundancy)
 	return interaction_information + redundancy
 end
+
+# Parameters:
+#	- probabilities of first variable
+#	- probabilities of second variable
+#	- base of exponent
+function apply_cross_entropy_formula{T<:AbstractFloat, R<:Real}(
+        p_x::AbstractArray{T},
+        p_y::AbstractArray{T},
+        base::R,
+        )
+    return -sum(remove_non_finite.(p_x .* log.(base, p_y)))
+end
