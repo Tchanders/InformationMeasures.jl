@@ -11,7 +11,8 @@ export discretize_values,
 	get_total_correlation,
 	get_interaction_information,
 	get_partial_information_decomposition,
-	get_redundancy
+	get_redundancy,
+	get_cross_entropy
 
 """
     discretize_values(values_x; <keyword arguments>)
@@ -557,4 +558,37 @@ function get_redundancy(xyz; estimator = "maximum_likelihood", base = 2, probabi
 	else
 		return apply_redundancy_formula(probabilities_xz, probabilities_yz, probabilities_x, probabilities_y, probabilities_z, (1, 2), base)
 	end
+end
+
+
+"""
+    get_cross_entropy(values_x, values_y; <keyword arguments>)
+Estimate the cross-entropy between two sets of values.
+# Arguments:
+* `values_x`: the first set of data values.
+* `values_y`: the second set of data values.
+* `estimator="maximum_likelihood"`: the entropy estimator.
+* `base=2`: the base of the logarithm, equivalent to the units of information.
+* `mode="uniform_width"`: the discretization algorithm.
+* `number_of_bins=0`: the number of bins (will be overridden if `mode` is `"bayesian_blocks"`).
+* `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
+* `discretized=false`: whether the data values are already discretized.
+* `lambda=nothing`: the shrinkage intensity, only used if `estimator` is `"shrinkage"`.
+* `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+"""
+function get_cross_entropy(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0, get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 1)
+    frequency_x = discretized ? values_x : discretize_values(values_x, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+    frequency_y = discretized ? values_y : discretize_values(values_y, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
+    
+    probability_x = get_probabilities(estimator, frequency_x, lambda = lambda, prior = prior)
+    probability_y = get_probabilities(estimator, frequency_y, lambda = lambda, prior = prior)
+    
+    cross_entropy = apply_cross_entropy_formula(probability_x, probability_y, base)
+    
+    if estimator == "miller_madow"
+        println("WARNING: Miller-Madow correction not implemented for the cross-entropy. ")
+        println("The calculation was performed without applying the correction.")
+    end
+    
+    return cross_entropy
 end
