@@ -7,6 +7,10 @@ julia:
   - 0.5
   - 0.6
   - nightly
+matrix:
+  allow_failures:
+    - julia: nightly
+  fast_finish: true
 git:
   depth: 999999
 notifications:
