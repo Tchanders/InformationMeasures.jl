@@ -15,3 +15,6 @@ git:
   depth: 999999
 notifications:
   email: false
+after_success:
+  # push coverage results to Codecov
+  - julia -e 'cd(Pkg.dir("InformationMeasures")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
