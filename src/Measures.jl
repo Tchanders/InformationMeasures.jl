@@ -86,14 +86,15 @@ function get_entropy(values_x...; estimator = "maximum_likelihood", base = 2, mo
 		discretize_values(values_x..., mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
 	probabilities = get_probabilities(estimator, frequencies, lambda = lambda, prior = prior)
-	
+
 	entropy = apply_entropy_formula(probabilities, base)
 
 	if estimator == "miller_madow"
 		entropy += (countnz(probabilities) - 1) / (2 * length(values_x[1]))
 	end
-	
-	return entropy
+
+	# Make sure we don't return -0.0
+	return entropy + 0.0
 end
 
 """
@@ -114,7 +115,7 @@ Estimate conditional entropy of one set of values conditioned on another set of 
 """
 function get_conditional_entropy(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
 	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
-	
+
 	frequencies_xy = discretize_values(values_x, values_y, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
 
 	return get_conditional_entropy(frequencies_xy; estimator = estimator, base = base, lambda = lambda, prior = prior)
@@ -579,16 +580,16 @@ Estimate the cross-entropy between two sets of values.
 function get_cross_entropy(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0, get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 1)
     frequency_x = discretized ? values_x : discretize_values(values_x, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
     frequency_y = discretized ? values_y : discretize_values(values_y, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
-    
+
     probability_x = get_probabilities(estimator, frequency_x, lambda = lambda, prior = prior)
     probability_y = get_probabilities(estimator, frequency_y, lambda = lambda, prior = prior)
-    
+
     cross_entropy = apply_cross_entropy_formula(probability_x, probability_y, base)
-    
+
     if estimator == "miller_madow"
         println("WARNING: Miller-Madow correction not implemented for the cross-entropy. ")
         println("The calculation was performed without applying the correction.")
     end
-    
+
     return cross_entropy
 end
