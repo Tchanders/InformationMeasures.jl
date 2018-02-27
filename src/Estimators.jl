@@ -65,7 +65,7 @@ function get_lambda(normalized_frequencies, target, n)
 
 	# Estimate shrinkage intensity
 	lambda = msp == 0 ? 1.0 : sum(varu) / msp
-	
+
 	# Make lambda be between 0 and 1 inclusive
 	return lambda > 1 ? 1.0 : (lambda < 0 ? 0.0 : lambda)
 
