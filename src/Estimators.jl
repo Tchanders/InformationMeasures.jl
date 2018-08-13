@@ -26,7 +26,7 @@ end
 # Parameters:
 # 	- frequencies, integer array
 # 	- lambda, void
-function get_probabilities_shrinkage(frequencies, lambda::Void)
+function get_probabilities_shrinkage(frequencies, lambda::Nothing)
 	target = get_uniform_distribution(frequencies)
 	n = sum(frequencies)
 	normalized_frequencies = frequencies / n
