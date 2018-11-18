@@ -59,8 +59,8 @@ println("Entropy with Dirichlet and prior passed.")
 @test get_entropy(arr, estimator = "miller_madow") ≈ log2(sqrt_1000) atol = 0.05
 println("Entropy with Miller-Madow passed.")
 
-# Test with base e
-@test get_entropy(arr, base = e) ≈ log(sqrt_1000) atol = 0.05
+# Test with base ℯ
+@test get_entropy(arr, base = ℯ) ≈ log(sqrt_1000) atol = 0.05
 println("Entropy with change of base passed.")
 
 # Test with discretized

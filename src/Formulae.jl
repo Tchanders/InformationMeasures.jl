@@ -82,7 +82,7 @@ end
 # 	- dimension along which to sum, integer
 # 	- base, number
 function apply_specific_information_formula(p_xz, p_x, p_z, dim_sum, base)
-	return vec(sum(remove_non_finite.((p_xz ./ p_z) .* log.(base, p_xz ./ (p_x .* p_z))), dim_sum))
+	return vec(sum(remove_non_finite.((p_xz ./ p_z) .* log.(base, p_xz ./ (p_x .* p_z))), dims = dim_sum))
 end
 
 # Parameters:
