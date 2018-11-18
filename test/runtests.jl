@@ -1,5 +1,5 @@
 using InformationMeasures
-using Base.Test
+using Test
 
 arr1 = rand(1000)
 arr2 = rand(1000)

@@ -136,16 +136,16 @@ get_bin_ids!(data_3, "uniform_width", number_of_bins, bin_ids_3)
 
 f_12 = get_frequencies_from_bin_ids(bin_ids_1, bin_ids_2, number_of_bins, number_of_bins)
 p_12 = get_probabilities("maximum_likelihood", f_12)
-mi_12 = apply_mutual_information_formula(p_12, sum(p_12, 2), sum(p_12, 1), mi_base)
+mi_12 = apply_mutual_information_formula(p_12, sum(p_12, dims = 2), sum(p_12, dims = 1), mi_base)
 
 f_13 = get_frequencies_from_bin_ids(bin_ids_1, bin_ids_3, number_of_bins, number_of_bins)
 p_13 = get_probabilities("maximum_likelihood", f_13)
-mi_13 = apply_mutual_information_formula(p_13, sum(p_13, 2), sum(p_13, 1), mi_base)
+mi_13 = apply_mutual_information_formula(p_13, sum(p_13, dims = 2), sum(p_13, dims = 1), mi_base)
 
 # And so on...
 ```
 
-Note that the probability distribution is estimated from the joint frequencies rather than the marginals, meaning that, for most estimators, `sum(p_12, 2)` may be different from `sum(p_13, 2)`, even though both represent the estimated probability distribution for `data_1`. (This is not the case for the "maximum likelihood" estimator, which just divides the bin frequencies by the total frequency. For this estimator, the marginal probabilities could be stored in advance to avoid calculating them as they are passed into `apply_entropy_formula`. The best performance in that case may depend on the cost of storage vs calculations.)
+Note that the probability distribution is estimated from the joint frequencies rather than the marginals, meaning that, for most estimators, `sum(p_12, dims = 2)` may be different from `sum(p_13, dims = 2)`, even though both represent the estimated probability distribution for `data_1`. (This is not the case for the "maximum likelihood" estimator, which just divides the bin frequencies by the total frequency. For this estimator, the marginal probabilities could be stored in advance to avoid calculating them as they are passed into `apply_entropy_formula`. The best performance in that case may depend on the cost of storage vs calculations.)
 
 Here are two full examples of the "quick" vs the "easy" way to estimate the mutual information between all pairs of a set of variables.
 
@@ -168,7 +168,7 @@ function mi_quick(data; discretizer = "uniform_width", estimator = "maximum_like
 	for i in 1 : nvars, j in i+1 : nvars
 		f = get_frequencies_from_bin_ids(bin_ids[1:end, i:i], bin_ids[1:end, j:j], nbins, nbins)
 		p = get_probabilities(estimator, f)
-		mis[index] = apply_mutual_information_formula(p, sum(p, 1), sum(p, 2), mi_base)
+		mis[index] = apply_mutual_information_formula(p, sum(p, dims = 1), sum(p, dims = 2), mi_base)
 		index += 1
 	end
 

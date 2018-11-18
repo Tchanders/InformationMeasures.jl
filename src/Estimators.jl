@@ -43,7 +43,7 @@ function get_probabilities_shrinkage(frequencies, lambda)
 end
 
 function apply_shrinkage_formula(normalized_frequencies, target, lambda)
-	return lambda * target + (1 - lambda) * normalized_frequencies
+	return lambda * target .+ (1 - lambda) * normalized_frequencies
 end
 
 function get_uniform_distribution(frequencies)
@@ -60,8 +60,8 @@ function get_lambda(normalized_frequencies, target, n)
 	end
 	# Add better comments about varu and msp
 	# Unbiased estimator of variance of u
-	varu = normalized_frequencies .* (1 - normalized_frequencies) / (n - 1)
-	msp = sum((normalized_frequencies - target).^2) # misspecification ???
+	varu = normalized_frequencies .* (1 .- normalized_frequencies) / (n - 1)
+	msp = sum((normalized_frequencies .- target).^2) # misspecification ???
 
 	# Estimate shrinkage intensity
 	lambda = msp == 0 ? 1.0 : sum(varu) / msp

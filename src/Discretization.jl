@@ -15,7 +15,7 @@ end
 # 	- mode, string
 #	- number_of_bins, number
 function get_frequencies(mode, number_of_bins, values_x)
-	bin_ids = Array{Int}(size(values_x))
+	bin_ids = zeros(Int, size(values_x))
 	number_of_bins = get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
 	frequencies = zeros(Int, (number_of_bins, 1))
 	for id in bin_ids
@@ -26,8 +26,8 @@ end
 function get_frequencies(mode, number_of_bins, values_x, values_y)
 	# n is the number of data points
 	n = size(values_x)[1]
-	bin_ids_x = Array{Int}(size(values_x))
-	bin_ids_y = Array{Int}(size(values_y))
+	bin_ids_x = zeros(Int, size(values_x))
+	bin_ids_y = zeros(Int, size(values_y))
 	number_of_bins_x = get_bin_ids!(values_x, mode, number_of_bins, bin_ids_x)
 	number_of_bins_y = get_bin_ids!(values_y, mode, number_of_bins, bin_ids_y)
 	frequencies = zeros(Int, (number_of_bins_x, number_of_bins_y))
@@ -39,9 +39,9 @@ end
 function get_frequencies(mode, number_of_bins, values_x, values_y, values_z)
 	# n is the number of data points
 	n = size(values_x)[1]
-	bin_ids_x = Array{Int}(size(values_x))
-	bin_ids_y = Array{Int}(size(values_y))
-	bin_ids_z = Array{Int}(size(values_z))
+	bin_ids_x = zeros(Int, size(values_x))
+	bin_ids_y = zeros(Int, size(values_y))
+	bin_ids_z = zeros(Int, size(values_z))
 	number_of_bins_x = get_bin_ids!(values_x, mode, number_of_bins, bin_ids_x)
 	number_of_bins_y = get_bin_ids!(values_y, mode, number_of_bins, bin_ids_y)
 	number_of_bins_z = get_bin_ids!(values_z, mode, number_of_bins, bin_ids_z)
@@ -56,11 +56,11 @@ function get_frequencies(mode, number_of_bins, values_x...)
 	n = size(values_x[1])[1]
 	# d is the number of dimensions
 	d = length(values_x)
-	bin_ids = Array{Array{Int}}(d)
-	all_number_of_bins = Array{Int}(d)
+	bin_ids = [zeros(Int, 1) for i in 1:d]
+	all_number_of_bins = zeros(Int, d)
 	for i in 1:d
 		current_values = values_x[i]
-		bin_ids[i] = Array{Int}(size(current_values))
+		bin_ids[i] = zeros(Int, size(current_values))
 		all_number_of_bins[i] = get_bin_ids!(current_values, mode, number_of_bins, bin_ids[i])
 	end
 	frequencies = zeros(Int, tuple(all_number_of_bins...))
