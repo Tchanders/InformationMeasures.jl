@@ -17,7 +17,7 @@
 
 ## Performance
 
-In cases where optimal performance is needed, the latest version of InformationMeasures is recommended, with Julia 0.6. See also [Advanced usage](#advanced-usage).
+In cases where optimal performance is needed, the latest version of InformationMeasures is recommended, with Julia 1.0 or later. See also [Advanced usage](#advanced-usage).
 
 ## Basic usage
 
@@ -193,3 +193,7 @@ end
 ## Contributing
 
 Contributions and bug reports are welcome!
+
+## References
+
+[1] Chan, Stumpf and Babtie (2017) [Gene Regulatory Network Inference from Single-Cell Data Using Multivariate Information Measures](http://www.cell.com/cell-systems/fulltext/S2405-4712(17)30386-1) Cell Systems
