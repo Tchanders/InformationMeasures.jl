@@ -21,6 +21,10 @@ redundancy = get_redundancy(arr1, arr2, arr_and)
 @test redundancy ≈ 0.3 atol = 0.1
 println("Redundancy with AND gate passed.")
 
+redundancy = get_redundancy(arr1, arr2, arr_and, all_orientations = true)[1]
+@test redundancy ≈ 0.3 atol = 0.1
+println("Redundancy with AND gate (all orientations) passed.")
+
 # Test unique information for AND gate
 mutual_information = get_mutual_information(arr1, arr_and)
 @test apply_unique_information_formula(mutual_information, redundancy) ≈ 0 atol = 0.1
