@@ -4,6 +4,12 @@
 # targets by default, whereas the mutual information formula overcomes
 # by estimating the probabilities of the 3D distribution, then projecting)
 
+mi = entropy1 + entropy2 - entropy12
+
+# Test mutual information
+@test get_mutual_information(arr1, arr2) ≈ mi
+println("Mutual information passed")
+
 # Test mutual information formula
-@test get_mutual_information(arr1, arr2) ≈ get_entropy(arr1) + get_entropy(arr2) - get_entropy(arr1, arr2)
+@test apply_mutual_information_formula(entropy1, entropy2, entropy12) ≈ mi
 println("Mutual information formula passed.")
