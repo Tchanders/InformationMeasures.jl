@@ -24,6 +24,9 @@ Assign continuous measurements to discrete bins.
 * `mode="uniform_width"`: the discretization algorithm.
 * `number_of_bins=0`: the number of bins (will be overridden if `mode` is `"bayesian_blocks"`).
 * `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
+
+# Returns
+Array of length `n`, where `n` is the number of bins, containing the frequencies for each bin.
 """
 function discretize_values(values_x...; mode = "uniform_width", number_of_bins = 0, get_number_of_bins = get_root_n)
 
@@ -39,11 +42,14 @@ end
 
 Estimate probabilities from a set of discrete values.
 
-# Arguments:
+# Arguments
 * `estimator`: the entropy estimator.
 * `frequencies`: the bin frequencies for the discretized data values.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Array of length `n`, where `n` is the number of bins, containing the probabilities for each bin.
 """
 function get_probabilities(estimator, frequencies; lambda = nothing, prior = 1)
 
@@ -63,7 +69,7 @@ end
 
 Estimate entropy (or joint entropy, if more than one set of data values is given).
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
@@ -73,6 +79,9 @@ Estimate entropy (or joint entropy, if more than one set of data values is given
 * `discretized=false`: whether the data values are already discretized.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the joint entropy of the inputs.
 """
 function get_entropy(values_x...; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
 	get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 1)
@@ -102,7 +111,7 @@ end
 
 Estimate conditional entropy of one set of values conditioned on another set of values.
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `values_y`: the data values to be conditioned on.
 * `estimator="maximum_likelihood"`: the entropy estimator.
@@ -112,6 +121,9 @@ Estimate conditional entropy of one set of values conditioned on another set of 
 * `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the joint entropy of `x` conditioned on `y`.
 """
 function get_conditional_entropy(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
 	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
@@ -123,13 +135,16 @@ end
 """
     get_conditional_entropy(xy; <keyword arguments>)
 
-# Arguments:
+# Arguments
 * `xy`: the 2D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
 * `probabilities=false`: whether `xy` is probabilities. If `false`, `xy` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the joint entropy of `x` conditioned on `y`.
 """
 function get_conditional_entropy(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
@@ -153,7 +168,7 @@ end
 
 Estimate the mutual information between two sets of values.
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `values_y`: a second set of data values.
 * `estimator="maximum_likelihood"`: the entropy estimator.
@@ -163,6 +178,9 @@ Estimate the mutual information between two sets of values.
 * `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the mutual information of `x` and `y`.
 """
 function get_mutual_information(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
 	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
@@ -174,13 +192,16 @@ end
 """
     get_mutual_information(xy; <keyword arguments>)
 
-# Arguments:
+# Arguments
 * `xy`: the 2D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
 * `probabilities=false`: whether `xy` is probabilities. If `false`, `xy` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the mutual information of `x` and `y`.
 """
 function get_mutual_information(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
@@ -207,7 +228,7 @@ end
 
 Estimate the conditional mutual information between two sets of values, conditioned on a third.
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `values_y`: a second set of data values.
 * `values_z`: the data values to be conditioned on.
@@ -218,6 +239,9 @@ Estimate the conditional mutual information between two sets of values, conditio
 * `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the mutual information of `x` and `y` conditioned on `z`.
 """
 function get_conditional_mutual_information(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
 	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
@@ -229,13 +253,16 @@ end
 """
     get_conditional_mutual_information(xyz; <keyword arguments>)
 
-# Arguments:
+# Arguments
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
 * `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the mutual information of `x` and `y` conditioned on `z`.
 """
 function get_conditional_mutual_information(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
@@ -265,7 +292,7 @@ end
 
 Estimate the interaction information between three sets of values.
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `values_y`: a second set of data values.
 * `values_z`: a third set of data values.
@@ -276,6 +303,9 @@ Estimate the interaction information between three sets of values.
 * `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the interaction information between `x`, `y` and `z`.
 """
 function get_interaction_information(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width",
 	number_of_bins = 0, get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
@@ -287,13 +317,16 @@ end
 """
     get_interaction_information(xyz; <keyword arguments>)
 
-# Arguments:
+# Arguments
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
 * `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the interaction information between `x`, `y` and `z`.
 """
 function get_interaction_information(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
@@ -311,7 +344,7 @@ end
 
 Estimate the total correlation between three sets of values.
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `values_y`: a second set of data values.
 * `values_z`: a third set of data values.
@@ -322,6 +355,9 @@ Estimate the total correlation between three sets of values.
 * `get_number_of_bins=get_root_n`: the method for calculating the number of bins (only called if `number_of_bins` is `0`).
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the total correlation between `x`, `y` and `z`.
 """
 function get_total_correlation(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
 	get_number_of_bins = get_root_n, lambda = nothing, prior = 1)
@@ -333,13 +369,16 @@ end
 """
     get_total_correlation(xyz; <keyword arguments>)
 
-# Arguments:
+# Arguments
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
 * `probabilities=false`: whether `xyz` is probabilities. If `false`, `xyz` is frequencies.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the total correlation between `x`, `y` and `z`.
 """
 function get_total_correlation(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
@@ -364,7 +403,7 @@ Estimate the partial information decomposition between three sets of values.
 
 Performance can be improved by setting `all_orientations`, `include_unique` and `include_synergy` according to the use case.
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `values_y`: a second set of data values.
 * `values_z`: a third set of data values.
@@ -378,6 +417,29 @@ Performance can be improved by setting `all_orientations`, `include_unique` and 
 * `all_orientations=false`: whether to use each set of values as the target. If `false`, only `values_z` is the target.
 * `include_unique=true`: whether to get the unique information.
 * `include_synergy=true`: whether to get the synergy.
+
+# Returns
+Dictionary `pid` containing the PID between `x`, `y` and `z`, where:
+
+`all_orientations = false`
+* `pid['redundancy']`: redundancy between `x`, `y` and target `z`
+* `pid['unique_1']`: unique information between `x` and target `z`
+* `pid['unique_2']`: unique information between `y` and target `z`
+* `pid['synergy']`: synergy between `x`, `y` and target `z`
+
+`all_orientations = true`
+* `pid['x']['redundancy']`: redundancy between `y`, `z` and target `x`
+* `pid['x']['unique_1']`: unique information between `y` and target `x`
+* `pid['x']['unique_2']`: unique information between `z` and target `x`
+* `pid['x']['synergy']`: synergy between `y`, `z` and target `x`
+* `pid['y']['redundancy']`: redundancy between `x`, `z` and target `y`
+* `pid['y']['unique_1']`: unique information between `x` and target `y`
+* `pid['y']['unique_2']`: unique information between `z` and target `y`
+* `pid['y']['synergy']`: synergy between `x`, `z` and target `y`
+* `pid['z']['redundancy']`: redundancy between `x`, `y` and target `z`
+* `pid['z']['unique_1']`: unique information between `x` and target `z`
+* `pid['z']['unique_2']`: unique information between `y` and target `z`
+* `pid['z']['synergy']`: synergy between `x`, `y` and target `z`
 """
 function get_partial_information_decomposition(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
 	get_number_of_bins = get_root_n, lambda = nothing, prior = 1, all_orientations = false, include_unique = true, include_synergy = true)
@@ -390,7 +452,7 @@ end
 """
     get_partial_information_decomposition(xyz; <keyword arguments>)
 
-# Arguments:
+# Arguments
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
@@ -400,6 +462,29 @@ end
 * `all_orientations=false`: whether to use each set of values as the target. If `false`, only `values_z` is the target.
 * `include_unique=true`: whether to get the unique information.
 * `include_synergy=true`: whether to get the synergy.
+
+# Returns
+Dictionary `pid` containing the PID between `x`, `y` and `z`, where:
+
+`all_orientations = false`
+* `pid['redundancy']`: redundancy between `x`, `y` and target `z`
+* `pid['unique_1']`: unique information between `x` and target `z`
+* `pid['unique_2']`: unique information between `y` and target `z`
+* `pid['synergy']`: synergy between `x`, `y` and target `z`
+
+`all_orientations = true`
+* `pid['x']['redundancy']`: redundancy between `y`, `z` and target `x`
+* `pid['x']['unique_1']`: unique information between `y` and target `x`
+* `pid['x']['unique_2']`: unique information between `z` and target `x`
+* `pid['x']['synergy']`: synergy between `y`, `z` and target `x`
+* `pid['y']['redundancy']`: redundancy between `x`, `z` and target `y`
+* `pid['y']['unique_1']`: unique information between `x` and target `y`
+* `pid['y']['unique_2']`: unique information between `z` and target `y`
+* `pid['y']['synergy']`: synergy between `x`, `z` and target `y`
+* `pid['z']['redundancy']`: redundancy between `x`, `y` and target `z`
+* `pid['z']['unique_1']`: unique information between `x` and target `z`
+* `pid['z']['unique_2']`: unique information between `y` and target `z`
+* `pid['z']['synergy']`: synergy between `x`, `y` and target `z`
 """
 function get_partial_information_decomposition(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1, all_orientations = false,
 	include_unique = true, include_synergy = true)
@@ -508,7 +593,7 @@ end
 
 Estimate the redundancy between three sets of values.
 
-# Arguments:
+# Arguments
 * `values_x`: the data values.
 * `values_y`: a second set of data values.
 * `values_z`: a third set of data values.
@@ -520,6 +605,9 @@ Estimate the redundancy between three sets of values.
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
 * `all_orientations=false`: whether to use each set of values as the target. If `false`, only `values_z` is the target.
+
+# Returns
+Float representing the redundancy between `x`, `y` and target `z`.
 """
 function get_redundancy(values_x, values_y, values_z; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0,
 	get_number_of_bins = get_root_n, lambda = nothing, prior = 1, all_orientations = false)
@@ -531,7 +619,7 @@ end
 """
     get_redundancy(xyz; <keyword arguments>)
 
-# Arguments:
+# Arguments
 * `xyz`: the 3D frequencies or probabilities.
 * `estimator="maximum_likelihood"`: the entropy estimator.
 * `base=2`: the base of the logarithm, equivalent to the units of information.
@@ -539,6 +627,9 @@ end
 * `lambda=nothing`: the shrinkage instensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
 * `all_orientations=false`: whether to use each set of values as the target. If `false`, only `values_z` is the target.
+
+# Returns
+Float representing the redundancy between `x`, `y` and target `z`.
 """
 function get_redundancy(xyz; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1, all_orientations = false)
 	probabilities_xyz = probabilities ? xyz : get_probabilities(estimator, xyz, lambda = lambda, prior = prior)
@@ -565,7 +656,7 @@ end
 """
     get_cross_entropy(values_x, values_y; <keyword arguments>)
 Estimate the cross-entropy between two sets of values.
-# Arguments:
+# Arguments
 * `values_x`: the first set of data values.
 * `values_y`: the second set of data values.
 * `estimator="maximum_likelihood"`: the entropy estimator.
@@ -576,6 +667,9 @@ Estimate the cross-entropy between two sets of values.
 * `discretized=false`: whether the data values are already discretized.
 * `lambda=nothing`: the shrinkage intensity, only used if `estimator` is `"shrinkage"`.
 * `prior=1`: the Dirichlet prior, only used if `estimator` is `"dirichlet"`.
+
+# Returns
+Float representing the cross entropy between `x` and `y`.
 """
 function get_cross_entropy(values_x, values_y; estimator = "maximum_likelihood", base = 2, mode = "uniform_width", number_of_bins = 0, get_number_of_bins = get_root_n, discretized = false, lambda = nothing, prior = 1)
     frequency_x = discretized ? values_x : discretize_values(values_x, mode = mode, number_of_bins = number_of_bins, get_number_of_bins = get_number_of_bins)
