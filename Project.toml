@@ -6,7 +6,7 @@ version = "0.3.0"
 Discretizers = "6e83dbb3-75ca-525b-8ae2-3751f0dd50b4"
 
 [compat]
-Discretizers = "0.3"
+Discretizers = "3"
 julia = "0.7, 1"
 
 [extras]
