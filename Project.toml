@@ -1,0 +1,16 @@
+name = "InformationMeasures"
+uuid = "96684042-fbdc-5399-9b8e-d34e539a126c"
+version = "0.3.0"
+
+[deps]
+Discretizers = "6e83dbb3-75ca-525b-8ae2-3751f0dd50b4"
+
+[compat]
+Discretizers = "3"
+julia = "0.7, 1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
