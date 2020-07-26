@@ -108,7 +108,7 @@ function get_bin_ids!(values_x, mode, number_of_bins, bin_ids)
 	if min == max
 		# If values are all the same, assign them all to bin 1
 		number_of_bins = 1
-		bin_ids[1:end] = 1
+		bin_ids[1:end] .= 1
 	elseif mode == "uniform_width"
 		bin_ids[1:end] = encode(LinearDiscretizer(binedges(DiscretizeUniformWidth(number_of_bins), values_x)), values_x)
 	elseif mode == "binarize"
