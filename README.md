@@ -1,13 +1,5 @@
 # InformationMeasures
 
-*Release version:*
-
-[![InformationMeasures](http://pkg.julialang.org/badges/InformationMeasures_0.4.svg)](http://pkg.julialang.org/?pkg=InformationMeasures)
-[![InformationMeasures](http://pkg.julialang.org/badges/InformationMeasures_0.5.svg)](http://pkg.julialang.org/?pkg=InformationMeasures)
-[![InformationMeasures](http://pkg.julialang.org/badges/InformationMeasures_0.6.svg)](http://pkg.julialang.org/?pkg=InformationMeasures)
-
-*Development version:*
-
 [![Build Status](https://travis-ci.org/Tchanders/InformationMeasures.jl.svg?branch=master)](https://travis-ci.org/Tchanders/InformationMeasures.jl)
 [![codecov.io](http://codecov.io/github/Tchanders/InformationMeasures.jl/coverage.svg?branch=master)](http://codecov.io/github/Tchanders/InformationMeasures.jl?branch=master)
 
