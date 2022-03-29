@@ -17,7 +17,7 @@ Currently information measures on three or fewer variables are supported. The ba
 
 It is also possible to pass in frequencies (if the data has already been discretized), or probabilities (if the probabilities are already known or have already been estimated) - see below.
 
-```
+```julia
 using InformationMeasures
 
 data_1 = rand(100)
@@ -92,7 +92,7 @@ For all other information measures, simply pass in a single array of frequencies
 
 Although discretization is taken care of when the information measures are calculated, it is possible to discretize raw values directly, for example to investigate how different discretization algorithms and bin numbers affect the discretization.
 
-```
+```julia
 data = rand(100)
 disc_val = discretize_values(data)
 ```
@@ -109,7 +109,7 @@ When calculating the mutual information between every pair of data vectors from 
 
 Currently, discretization for multiple variables works by discretizing the marginals independently, then reconstructing the higher dimensional frequencies from these discretized marginals. Therefore discretizing each variable once in advance will not affect the results, but will be much quicker. Joint frequencies cannot be reconstructed from the bin frequencies; instead the discretized values should be stored. `get_bin_ids!` should therefore be used, instead of `discretize_values`:
 
-```
+```julia
 data_1 = rand(100)
 data_2 = rand(100)
 data_3 = rand(100)
@@ -141,7 +141,7 @@ Note that the probability distribution is estimated from the joint frequencies r
 
 Here are two full examples of the "quick" vs the "easy" way to estimate the mutual information between all pairs of a set of variables.
 
-```
+```julia
 data = rand(100, 100)
 
 function mi_quick(data; discretizer = "uniform_width", estimator = "maximum_likelihood", mi_base = 2)
