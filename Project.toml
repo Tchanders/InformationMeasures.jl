@@ -1,6 +1,6 @@
 name = "InformationMeasures"
 uuid = "96684042-fbdc-5399-9b8e-d34e539a126c"
-version = "0.3.1"
+version = "0.3.2"
 
 [deps]
 Discretizers = "6e83dbb3-75ca-525b-8ae2-3751f0dd50b4"
