@@ -149,7 +149,7 @@ Float representing the joint entropy of `x` conditioned on `y`.
 function get_conditional_entropy(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
 	probabilities_xy = probabilities ? xy : get_probabilities(estimator, xy, lambda = lambda, prior = prior)
-	probabilities_y = sum(probabilities_xy, dims = 2)
+	probabilities_y = sum(probabilities_xy, dims = 1)
 
 	entropy_xy = apply_entropy_formula(probabilities_xy, base)
 	entropy_y = apply_entropy_formula(probabilities_y, base)
@@ -206,8 +206,8 @@ Float representing the mutual information of `x` and `y`.
 function get_mutual_information(xy; estimator = "maximum_likelihood", base = 2, probabilities = false, lambda = nothing, prior = 1)
 
 	probabilities_xy = probabilities ? xy : get_probabilities(estimator, xy, lambda = lambda, prior = prior)
-	probabilities_x = sum(probabilities_xy, dims = 1)
-	probabilities_y = sum(probabilities_xy, dims = 2)
+	probabilities_x = sum(probabilities_xy, dims = 2)
+	probabilities_y = sum(probabilities_xy, dims = 1)
 
 	# TODO: either deprecate or add warning about inappropriate use
 	if estimator == "miller_madow"
